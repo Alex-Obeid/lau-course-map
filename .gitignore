@@ -17,3 +17,6 @@ desktop.ini
 # Scratch
 /tmp/
 *.log
+
+# Local dev server config
+.claude/

@@ -1,4 +1,14 @@
-{
+// LAU Mechanical Engineering study plan, effective Fall 2026.
+//
+// Plain data, written as JavaScript rather than JSON so the page works when
+// opened directly from disk; browsers refuse fetch() on file:// URLs.
+// Everything below the assignment is valid JSON.
+//
+// To add another program, copy this file, change the plan id, and add a
+// matching <script> tag to index.html.
+
+window.PLANS = window.PLANS || {};
+window.PLANS['lau-mee-2026f'] = {
   "plan": {
     "id": "lau-mee-2026f",
     "program": "Mechanical Engineering",
@@ -261,4 +271,4 @@
     "LAU Academic Catalog 2026-2027, course descriptions",
     "LAU Academic Catalog 2026-2027, Academic Rules and Procedures"
   ]
-}
+};

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LAU Course Map</title>
+<meta name="description" content="Interactive degree planner for LAU undergraduates.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-top">
+    <div class="wordmark">
+      <span class="wordmark-mark"></span>
+      <h1>Course<br>Map.</h1>
+    </div>
+
+    <div class="masthead-meta">
+      <p class="program" id="programName">Mechanical Engineering</p>
+      <p class="effective" id="effectiveLabel">Effective Fall 2026</p>
+    </div>
+  </div>
+
+  <div class="statbar" id="statbar">
+    <div class="stat">
+      <span class="stat-label">Credits earned</span>
+      <span class="stat-value" id="statEarned">0</span>
+      <span class="stat-sub" id="statEarnedSub">of 150</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Credits planned</span>
+      <span class="stat-value" id="statPlanned">0</span>
+      <span class="stat-sub" id="statPlannedSub">incl. freshman</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Cumulative GPA</span>
+      <span class="stat-value" id="statCGPA">&mdash;</span>
+      <span class="stat-sub" id="statCGPASub">no graded courses</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Major GPA</span>
+      <span class="stat-value" id="statMGPA">&mdash;</span>
+      <span class="stat-sub" id="statMGPASub">no graded courses</span>
+    </div>
+    <div class="stat stat-flags">
+      <span class="stat-label">Conflicts</span>
+      <span class="stat-value" id="statIssues">0</span>
+      <span class="stat-sub" id="statIssuesSub">nothing to review</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <label class="field">
+      <span>Start term</span>
+      <select id="startTerm">
+        <option value="fall">Fall</option>
+        <option value="spring">Spring</option>
+        <option value="summer">Summer</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>Start year</span>
+      <input type="number" id="startYear" min="2000" max="2099" step="1">
+    </label>
+    <label class="field">
+      <span>Entry credits</span>
+      <input type="number" id="entryCredits" min="0" max="90" step="1">
+    </label>
+    <span class="toolbar-gap"></span>
+    <button type="button" class="btn" id="btnAddTerm">Add term</button>
+    <button type="button" class="btn" id="btnExport">Export</button>
+    <button type="button" class="btn" id="btnImport">Import</button>
+    <button type="button" class="btn btn-quiet" id="btnReset">Reset to plan</button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </div>
+</header>
+
+<main>
+  <section class="board" id="board" aria-label="Semesters"></section>
+
+  <section class="panel" id="bankPanel">
+    <div class="panel-head">
+      <h2>Unplaced courses</h2>
+      <p class="panel-note">Courses removed from the board. Drag one back into any term.</p>
+    </div>
+    <div class="bank" id="bank" data-semester="bank"></div>
+  </section>
+
+  <div class="columns">
+    <section class="panel" id="issuesPanel">
+      <div class="panel-head">
+        <h2>Conflicts</h2>
+        <p class="panel-note">Checked against the LAU catalog, not only the flow chart.</p>
+      </div>
+      <ul class="issues" id="issues"></ul>
+    </section>
+
+    <section class="panel" id="reqPanel">
+      <div class="panel-head">
+        <h2>Requirements</h2>
+        <p class="panel-note">Liberal Arts and Sciences, Curriculum Z2026.</p>
+      </div>
+      <div id="requirements"></div>
+    </section>
+  </div>
+
+  <section class="panel legend">
+    <div class="panel-head">
+      <h2>Index</h2>
+    </div>
+    <div class="legend-grid">
+      <div class="legend-block">
+        <h3>Course categories</h3>
+        <ul class="legend-list" id="legendCategories"></ul>
+      </div>
+      <div class="legend-block">
+        <h3>Course states</h3>
+        <ul class="legend-list">
+          <li><span class="swatch swatch-state state-done"></span>Completed, struck through</li>
+          <li><span class="swatch swatch-state state-fail"></span>Failed, counts toward repeat limit</li>
+          <li><span class="swatch swatch-state state-wd"></span>Withdrawn (WI, WP, WF)</li>
+          <li><span class="swatch swatch-state state-lock"></span>Registered term, locked</li>
+          <li><span class="swatch swatch-state state-flag"></span>Prerequisite or load conflict</li>
+        </ul>
+      </div>
+      <div class="legend-block">
+        <h3>Marks on a card</h3>
+        <ul class="legend-list">
+          <li><span class="mark">P</span>Has prerequisites</li>
+          <li><span class="mark">C</span>Has corequisites or must run concurrently</li>
+          <li><span class="mark">H</span>Prerequisite not drawn on the official flow chart</li>
+          <li><span class="mark">!</span>Overridden by you, checks suppressed</li>
+        </ul>
+      </div>
+      <div class="legend-block">
+        <h3>Credit limits</h3>
+        <ul class="legend-list plain">
+          <li>Fall and spring, 18 credits</li>
+          <li>Summer, 9 credits</li>
+          <li>21 with a cumulative GPA of 3.00 or above</li>
+          <li>13 while on academic probation</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="disclaimer">
+    Course data is transcribed from the official LAU Mechanical Engineering flow
+    chart and the 2026&ndash;2027 academic catalog. This is a planning aid, not an
+    official record. Confirm your schedule with your advisor and the Registrar.
+  </p>
+</main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <button type="button" class="sheet-close" id="sheetClose" aria-label="Close">&times;</button>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="data/mee.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
