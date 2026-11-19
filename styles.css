@@ -219,7 +219,8 @@ b, strong { font-weight: 800; }
 .field input:focus-visible,
 .btn:focus-visible,
 .card:focus-visible,
-.lock:focus-visible,
+.tbtn:focus-visible,
+.year-head:focus-visible,
 .grade-btn:focus-visible {
   outline: var(--rule) solid var(--blue);
   outline-offset: 2px;
@@ -295,6 +296,68 @@ b, strong { font-weight: 800; }
 
 .board { border-top: var(--rule) solid var(--ink); }
 
+.year-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  width: 100%;
+  padding: 11px 18px;
+  background: var(--wash);
+  border: 0;
+  border-bottom: var(--rule) solid var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.year-head:hover { background: var(--yellow); }
+.year-head:focus-visible { outline: var(--rule) solid var(--blue); outline-offset: -4px; }
+
+.year-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.year-name {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.year-meta {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.year-done { color: var(--ink); background: var(--green); padding: 1px 5px; }
+
+.year-toggle {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.year-head.is-done .year-caret { background: var(--green); color: var(--ink); }
+.year-head.is-collapsed { background: var(--paper); }
+
 .term {
   display: grid;
   grid-template-columns: 212px 1fr;
@@ -355,26 +418,58 @@ b, strong { font-weight: 800; }
 .term.is-over .term-credits { color: var(--red); }
 .term.is-over .term-meter span { background: var(--red); }
 
-.term-actions { display: flex; gap: 6px; margin-top: auto; padding-top: 12px; }
+.term-status {
+  display: grid;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 12px;
+}
 
-.lock, .term-del {
-  padding: 5px 10px;
+.tbtn, .term-del {
+  padding: 6px 9px;
   background: var(--paper);
+  /* the in-progress rail sets white text; a white button must not inherit it */
+  color: var(--ink);
   border: var(--rule-sm) solid var(--ink);
   font-family: var(--mono);
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-align: left;
   cursor: pointer;
 }
 
-.lock:hover, .term-del:hover { background: var(--yellow); }
+.tbtn:hover, .term-del:hover { background: var(--yellow); }
 
-.term.is-locked .term-rail { background: var(--yellow); }
-.term.is-locked .term-year { color: var(--ink); }
-.term.is-locked .slots { background: #fffdf0; }
-.term.is-locked .lock { background: var(--ink); color: var(--paper); }
+.tbtn.is-on { box-shadow: 3px 3px 0 var(--ink); }
+.tbtn-registered.is-on { background: var(--yellow); }
+.tbtn-active.is-on     { background: var(--blue);  color: #fff; }
+.tbtn-done.is-on       { background: var(--green); }
+
+.term-del { margin-top: 8px; color: var(--ink-2); }
+
+/* row treatment per status */
+.term[data-status="registered"] .term-rail { background: var(--yellow); }
+.term[data-status="registered"] .term-year { color: var(--ink); }
+.term[data-status="registered"] .slots     { background: #fffdf0; }
+
+.term[data-status="active"] .term-rail { background: var(--blue); color: #fff; }
+.term[data-status="active"] .term-idx,
+.term[data-status="active"] .term-year { color: rgba(255, 255, 255, .8); }
+.term[data-status="active"] .term-meter { border-color: #fff; background: transparent; }
+.term[data-status="active"] .term-meter span { background: #fff; }
+.term[data-status="active"] .slots { background: #f3f4ff; }
+
+.term[data-status="done"] .term-rail { background: var(--green); }
+.term[data-status="done"] .term-year { color: var(--ink); }
+.term[data-status="done"] .slots { background: #f0fff6; }
+
+/* a finished term wears a tick, not just a colour */
+.term[data-status="done"] .term-name::after {
+  content: " \2713";
+  font-weight: 900;
+}
 
 /* A grid rather than wrapping flex: every row fills edge to edge and the
    cards in it share one height, which is what keeps the board looking built
@@ -401,6 +496,24 @@ b, strong { font-weight: 800; }
 .slots.drag-over, .bank.drag-over {
   background: #eef0ff;
   box-shadow: inset 0 0 0 var(--rule) var(--blue);
+}
+
+/* the ghost holds the gap the card will fill, so the grid settles before the
+   drop rather than jumping after it */
+.drop-ghost {
+  min-height: 92px;
+  border: var(--rule-sm) dashed var(--blue);
+  background: repeating-linear-gradient(45deg,
+    transparent 0 7px, rgba(43, 68, 255, .14) 7px 14px);
+}
+
+body.is-dragging .card { cursor: grabbing; }
+body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4px 0 var(--ink); }
+
+.card.dragging {
+  opacity: .25;
+  transform: none !important;
+  box-shadow: none;
 }
 
 /* ──────────────────────────────────────────────────────────────── card */
@@ -518,8 +631,47 @@ b, strong { font-weight: 800; }
 .card.is-failed .card-grade { background: var(--ink); color: var(--red); border-color: var(--red); }
 .card.is-failed { box-shadow: 4px 4px 0 var(--red); }
 
-.card.is-withdrawn { filter: grayscale(1); opacity: .5; }
-.card.is-withdrawn .card-title { font-style: italic; }
+.card.is-withdrawn {
+  --fill: #cfcbc3;
+  --on: var(--ink);
+  padding-bottom: 24px;
+  box-shadow: 4px 4px 0 var(--ink-3);
+}
+
+.card.is-withdrawn .card-code,
+.card.is-withdrawn .card-title { opacity: .72; }
+
+/* a single hard rule through the card, so it reads as struck at a glance */
+.card.is-withdrawn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right,
+    transparent calc(50% - 1.5px), var(--ink) calc(50% - 1.5px),
+    var(--ink) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  opacity: .45;
+  pointer-events: none;
+}
+
+.card-ribbon {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 3px 8px;
+  background: var(--ink);
+  color: var(--paper);
+  border-top: var(--rule-sm) solid var(--ink);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.card.is-withdrawn .card-grade { background: var(--ink-3); border-color: var(--ink); }
+
+/* both bands can land on one card, so they stack rather than overlap */
+.card.is-withdrawn.is-flagged { padding-bottom: 33px; }
+.card.is-withdrawn.is-flagged::after { bottom: 23px; }
 
 .card.is-flagged { padding-bottom: 18px; }
 .card.is-flagged::after {
@@ -887,6 +1039,82 @@ b, strong { font-weight: 800; }
 
 .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--blue); }
 
+/* ─────────────────────────────────────────────────────────── celebration */
+
+.cheer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cheer.is-out { opacity: 0; transition: opacity .4s ease; }
+
+.cheer-panel {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 290px;
+  padding: 22px 30px 24px;
+  background: var(--green);
+  border: var(--rule) solid var(--ink);
+  box-shadow: 12px 12px 0 var(--ink);
+  text-align: center;
+  /* visible at rest: the animation only supplies the entrance, so a browser
+     that throttles or blocks animations still shows the panel */
+  opacity: 1;
+  animation: cheer-pop .45s cubic-bezier(.2, 1.5, .4, 1);
+}
+
+.cheer-kicker {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.cheer-term {
+  display: block;
+  margin: 4px 0 6px;
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+
+.cheer-line {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cheer-bit {
+  position: absolute;
+  top: -24px;
+  width: 10px;
+  height: 16px;
+  border: 1.5px solid var(--ink);
+  animation-name: cheer-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+@keyframes cheer-pop {
+  from { transform: translate(-50%, -50%) scale(.75); opacity: 0; }
+}
+
+@keyframes cheer-fall {
+  from { transform: translateY(0) rotate(0deg); opacity: 1; }
+  to   { transform: translateY(105vh) rotate(620deg); opacity: .9; }
+}
+
 /* ──────────────────────────────────────────────────────────────── toast */
 
 .toast {
@@ -950,8 +1178,11 @@ b, strong { font-weight: 800; }
     border-bottom: var(--rule-sm) solid var(--ink);
   }
   .term-meter { display: none; }
-  .term-actions { margin-left: auto; padding-top: 0; }
+  .term-status { grid-auto-flow: column; margin-top: 0; margin-left: auto; }
+  .term-del { margin-top: 0; }
   .term-credits { margin-top: 0; }
+  .year-head { padding: 10px 14px; gap: 10px; }
+  .year-meta { font-size: 9.5px; }
   .legend-grid { grid-template-columns: 1fr; }
   .legend-block { border-left: 0; border-top: var(--rule-sm) solid var(--ink); }
   .legend-block:first-child { border-top: 0; }
@@ -967,6 +1198,8 @@ b, strong { font-weight: 800; }
 
 @media (prefers-reduced-motion: reduce) {
   .card, .btn { transition: none; }
+  .cheer-panel { animation: none; }
+  .cheer-bit { display: none; }
 }
 
 /* ──────────────────────────────────────────────────────────────── print */
@@ -974,7 +1207,8 @@ b, strong { font-weight: 800; }
 @media print {
   body { padding: 0; background: #fff; }
   .shell { max-width: none; border: 0; box-shadow: none; }
-  .toolbar, .sheet, .toast, .term-actions, .footer-shout { display: none; }
+  .toolbar, .sheet, .toast, .cheer,
+  .term-status, .term-del, .year-toggle, .footer-shout { display: none; }
   /* the hidden column would otherwise leave its track empty */
   .footer { grid-template-columns: 1fr; }
   .footer-body { border-left: 0; }
