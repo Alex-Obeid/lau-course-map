@@ -1096,6 +1096,7 @@
     // degree evaluation reads them.
     host.appendChild(el('h3', 'req-head', 'Requirement areas'));
     (plan.areas || []).forEach(function (area) {
+      if (area.ownSection) return;        // reported in full further down
       var got = areaCredits(area);
       bar(area.label, got.earned, area.credits,
           area.entryCredits ? 'transfer credits, no grade points'
@@ -1104,7 +1105,7 @@
     });
 
     // LAS categories.
-    host.appendChild(el('h3', 'req-head', 'LAS Curriculum Z detail'));
+    host.appendChild(el('h3', 'req-head', 'LAS Curriculum Z'));
     var las = plan.slotOptions.las;
     var counts = {};
     var unassigned = 0;
