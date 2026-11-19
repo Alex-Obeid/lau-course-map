@@ -37,6 +37,10 @@ Currently covers **Mechanical Engineering**, study plan effective Fall 2026.
   you; the year band keeps showing its credits and how many terms are done.
 - **Drag to reorder**, inside a term as well as between terms. A ghost marks
   where the card will land before you let go.
+- **A side tray** holds unplaced courses, open beside the board on a wide
+  screen so you can drag straight onto a term. Below 1280px it becomes a
+  drawer that slides in from the right.
+- **Finish the degree** and the page says so properly.
 - **Requirement tracking** by CAPP area, plus the LAS Z2026 categories,
   technical electives, the SDG restricted elective and the SOE signature.
 - **SOE signature is counted in credits, not courses**, because VIP+ courses
@@ -45,6 +49,9 @@ Currently covers **Mechanical Engineering**, study plan effective Fall 2026.
   credits are covered.
 - **Advisor override** per course, for when a waiver beats the rulebook.
 - Saves to the browser automatically, with JSON export and import.
+
+The header carries the wordmark, the study plan it is effective for, and the
+program and institution, then the tool begins below a break.
 
 Courses the plan does not schedule — the freshman English pair ENG101 and
 ENG102, for instance — sit in **Unplaced** so you can drag them onto the board

@@ -475,11 +475,6 @@
         flag(item, 'consent', 'warn', 'Requires the instructor’s consent.');
       }
 
-      if (eff.slot && !item.pick) {
-        flag(item, 'choose', 'warn',
-          'No course chosen yet for this ' + plan.slotOptions[eff.slot].label + ' slot.');
-      }
-
       if (attempts[identity(item)] > plan.rules.repeats.maxRegistrations) {
         flag(item, 'repeat', 'error',
           'Registered ' + attempts[identity(item)] + ' times. LAU allows ' +
@@ -524,6 +519,7 @@
     renderIssues();
     renderRequirements();
     save();
+    checkFinale();
   }
 
   function fmtGPA(v) { return v == null ? '—' : v.toFixed(2); }
@@ -536,28 +532,26 @@
   }
 
   function renderStats() {
-    $('statEarned').textContent = analysis.earned + state.entryCredits;
-    $('statEarnedSub').textContent = 'of ' + totalRequired() + ' required';
-    $('statPlanned').textContent = analysis.planned + state.entryCredits;
-    $('statPlannedSub').textContent = state.entryCredits
-      ? 'includes ' + state.entryCredits + ' entry credits'
-      : 'no entry credits';
+    setText('statEarned', analysis.earned + state.entryCredits);
+    setText('statEarnedSub', 'of ' + totalRequired() + ' required');
+    setText('statPlanned', analysis.planned + state.entryCredits);
 
-    $('statCGPA').textContent = fmtGPA(analysis.cgpa.gpa);
-    $('statCGPASub').textContent = analysis.cgpa.credits
-      ? analysis.cgpa.credits + ' credits graded' : 'no graded courses';
+    setText('statCGPA', fmtGPA(analysis.cgpa.gpa));
+    setText('statCGPASub', analysis.cgpa.credits
+      ? analysis.cgpa.credits + ' credits graded' : 'no graded courses');
 
-    $('statMGPA').textContent = fmtGPA(analysis.major.gpa);
-    $('statMGPASub').textContent = analysis.major.credits
-      ? analysis.major.credits + ' credits graded' : 'no graded courses';
+    setText('statMGPA', fmtGPA(analysis.major.gpa));
+    setText('statMGPASub', analysis.major.credits
+      ? analysis.major.credits + ' credits graded' : 'no graded courses');
 
     var errors = analysis.issues.filter(function (i) { return i.severity === 'error'; }).length;
     var warns = analysis.issues.length - errors;
-    $('statIssues').textContent = errors;
-    $('statIssuesSub').textContent = errors === 0 && warns === 0
-      ? 'nothing to review'
-      : (warns + ' to check');
-    $('statbar').querySelector('.stat-flags').classList.toggle('has-issues', errors > 0);
+    setText('statIssues', errors);
+    setText('statIssuesSub', errors === 0 && warns === 0
+      ? 'nothing to review' : (warns + ' to check'));
+
+    var flags = $('statbar') && $('statbar').querySelector('.stat-flags');
+    if (flags) flags.classList.toggle('has-issues', errors > 0);
   }
 
   function renderBoard() {
@@ -679,9 +673,10 @@
   function renderBank() {
     var bank = $('bank');
     bank.textContent = '';
-    state.items.filter(function (i) { return i.termId == null; })
-      .forEach(function (item) { bank.appendChild(cardFor(item, false)); });
+    var loose = state.items.filter(function (i) { return i.termId == null; });
+    loose.forEach(function (item) { bank.appendChild(cardFor(item, false)); });
     attachDrop(bank, null, false);
+    setText('trayCount', loose.length);
   }
 
   function cardFor(item, frozen) {
@@ -855,6 +850,132 @@
       placeItem(item, termId, beforeUid);
       render();
     });
+  }
+
+  /* ---------------------------------------------------------------- finale
+
+     Every requirement area satisfied is the whole degree done, which deserves
+     more than a term's worth of confetti. */
+
+  function degreeComplete() {
+    var areas = plan.areas || [];
+    if (!areas.length) return false;
+    return areas.every(function (a) { return areaCredits(a).earned >= a.credits; });
+  }
+
+  // Runs after save(), so the flag has to write itself or the finale fires
+  // again on every reload.
+  function checkFinale() {
+    if (degreeComplete()) {
+      if (!state.degreeCelebrated) {
+        state.degreeCelebrated = true;
+        save();
+        fireworks();
+      }
+    } else if (state.degreeCelebrated) {
+      state.degreeCelebrated = false;   // undo a course and it can fire again
+      save();
+    }
+  }
+
+  function fireworks() {
+    var reduced = window.matchMedia &&
+                  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var wrap = el('div', 'finale');
+    var canvas = document.createElement('canvas');
+    wrap.appendChild(canvas);
+
+    var panel = el('div', 'finale-panel');
+    panel.appendChild(el('span', 'finale-kicker', 'Every requirement met'));
+    panel.appendChild(el('strong', 'finale-title', 'Degree complete'));
+    panel.appendChild(el('span', 'finale-line',
+      (analysis.earned + state.entryCredits) + ' credits \u00b7 ' + plan.plan.program));
+    panel.appendChild(el('span', 'finale-dismiss', 'Click anywhere to dismiss'));
+    wrap.appendChild(panel);
+    document.body.appendChild(wrap);
+
+    var stop = false;
+    function close() {
+      if (stop) return;
+      stop = true;
+      wrap.classList.add('is-out');
+      setTimeout(function () {
+        if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      }, 500);
+    }
+    wrap.addEventListener('click', close);
+    setTimeout(close, reduced ? 2600 : 9000);
+    if (reduced) return;
+
+    var ctx = canvas.getContext('2d');
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    function size() {
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    size();
+    window.addEventListener('resize', size);
+
+    var COLOURS = ['#ff3b21', '#ffe400', '#2b44ff', '#00d563', '#ff2d87', '#ff9500'];
+    var sparks = [];
+
+    function burst(x, y) {
+      var colour = COLOURS[Math.floor(Math.random() * COLOURS.length)];
+      var count = 46 + Math.floor(Math.random() * 26);
+      for (var i = 0; i < count; i++) {
+        var ang = (Math.PI * 2 * i) / count + Math.random() * 0.2;
+        var speed = 1.8 + Math.random() * 3.6;
+        sparks.push({
+          x: x, y: y,
+          vx: Math.cos(ang) * speed,
+          vy: Math.sin(ang) * speed,
+          life: 1,
+          decay: 0.008 + Math.random() * 0.012,
+          colour: colour,
+          size: 1.6 + Math.random() * 2.2
+        });
+      }
+    }
+
+    var next = 0;
+    var started = Date.now();
+    function frame() {
+      if (stop) {
+        window.removeEventListener('resize', size);
+        return;
+      }
+      var now = Date.now();
+      if (now > next && now - started < 7000) {
+        burst(window.innerWidth * (0.15 + Math.random() * 0.7),
+              window.innerHeight * (0.12 + Math.random() * 0.45));
+        next = now + 320 + Math.random() * 420;
+      }
+
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = 'rgba(0,0,0,0.16)';
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+      ctx.globalCompositeOperation = 'source-over';
+
+      for (var i = sparks.length - 1; i >= 0; i--) {
+        var s = sparks[i];
+        s.vy += 0.045;              // gravity
+        s.vx *= 0.992;
+        s.vy *= 0.992;
+        s.x += s.vx;
+        s.y += s.vy;
+        s.life -= s.decay;
+        if (s.life <= 0) { sparks.splice(i, 1); continue; }
+        ctx.globalAlpha = Math.max(0, s.life);
+        ctx.fillStyle = s.colour;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(frame);
+    }
+    burst(window.innerWidth / 2, window.innerHeight * 0.34);
+    requestAnimationFrame(frame);
   }
 
   /* ------------------------------------------------------------ celebration */
@@ -1378,6 +1499,26 @@
       render();
       toast('Reset to the official study plan.');
     });
+
+    var tray = $('tray'), scrim = $('trayScrim'), toggle = $('trayToggle');
+
+    function setTray(open) {
+      document.body.classList.toggle('tray-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      scrim.hidden = !open;
+      try { localStorage.setItem(STORE_KEY + ':tray', open ? '1' : '0'); } catch (e) {}
+    }
+
+    var wide = window.matchMedia('(min-width: 1280px)').matches;
+    var remembered;
+    try { remembered = localStorage.getItem(STORE_KEY + ':tray'); } catch (e) {}
+    setTray(remembered == null ? wide : remembered === '1');
+
+    toggle.addEventListener('click', function () {
+      setTray(!document.body.classList.contains('tray-open'));
+    });
+    $('trayClose').addEventListener('click', function () { setTray(false); });
+    scrim.addEventListener('click', function () { setTray(false); });
 
     $('sheetClose').addEventListener('click', closeSheet);
     $('sheet').addEventListener('click', function (ev) {

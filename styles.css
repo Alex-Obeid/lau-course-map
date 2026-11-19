@@ -71,6 +71,56 @@ b, strong { font-weight: 800; }
   color: var(--ink-3);
 }
 
+.masthead {
+  max-width: 1400px;
+  margin: 0 auto 26px;
+  padding: 16px 22px 0;
+  background: var(--paper);
+  border: var(--rule) solid var(--ink);
+  box-shadow: 12px 12px 0 var(--ink);
+}
+
+.masthead-note {
+  margin: 0 0 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--ink-3);
+}
+
+.masthead-note .ast { color: var(--red); font-weight: 700; margin-right: 3px; }
+
+/* textLength makes the word fill the box exactly, whatever the box is */
+.wordmark { display: block; width: 100%; height: auto; }
+
+.wordmark text {
+  font-family: var(--sans);
+  font-weight: 900;
+  font-size: 140px;
+  letter-spacing: -0.04em;
+  fill: var(--ink);
+}
+
+.masthead-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 10px;
+  border-top: var(--rule) solid var(--ink);
+}
+
+.meta-cell { padding: 11px 0 13px; }
+.meta-cell + .meta-cell { padding-left: 18px; border-left: var(--rule) solid var(--ink); }
+
+.meta-cell strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
 .shell {
   max-width: 1400px;
   margin: 0 auto;
@@ -127,7 +177,7 @@ b, strong { font-weight: 800; }
 
 .statbar {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   border-bottom: var(--rule) solid var(--ink);
 }
 
@@ -1058,6 +1108,179 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 
 .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--blue); }
 
+/* ───────────────────────────────────────────────────────────────── tray */
+
+.tray {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(304px, 86vw);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border-left: var(--rule) solid var(--ink);
+  transform: translateX(101%);
+  transition: transform .22s ease;
+}
+
+body.tray-open .tray { transform: none; }
+
+.tray-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--ink);
+  color: var(--paper);
+  border-bottom: var(--rule) solid var(--ink);
+}
+
+.tray-head .micro { color: var(--ink-3); }
+
+.tray-head strong {
+  display: block;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.tray-close {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--rule-sm) solid var(--paper);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tray-close:hover { background: var(--red); border-color: var(--red); }
+
+.tray .bank {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--wash);
+  align-content: start;
+}
+
+.tray-toggle {
+  position: fixed;
+  right: 0;
+  bottom: 26px;
+  z-index: 46;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 15px;
+  background: var(--yellow);
+  border: var(--rule) solid var(--ink);
+  border-right: 0;
+  box-shadow: -5px 5px 0 var(--ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tray-toggle b {
+  min-width: 22px;
+  padding: 2px 5px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: center;
+}
+
+.tray-toggle:hover { background: var(--red); }
+body.tray-open .tray-toggle { display: none; }
+
+.tray-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  background: rgba(12, 12, 12, .45);
+}
+
+@media (min-width: 1280px) {
+  /* on a wide screen the tray sits beside the board instead of over it */
+  body.tray-open { padding-right: calc(304px + 28px); }
+  .tray-scrim { display: none; }
+}
+
+/* ─────────────────────────────────────────────────────────── finale */
+
+.finale {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(12, 12, 12, .82);
+  cursor: pointer;
+}
+
+.finale.is-out { opacity: 0; transition: opacity .5s ease; }
+
+.finale canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.finale-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 28px 38px 30px;
+  background: var(--yellow);
+  border: var(--rule) solid var(--ink);
+  box-shadow: 14px 14px 0 var(--red);
+  text-align: center;
+}
+
+.finale-kicker {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.finale-title {
+  display: block;
+  margin: 6px 0 8px;
+  font-size: clamp(38px, 7vw, 76px);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+}
+
+.finale-line {
+  display: block;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.finale-dismiss {
+  display: block;
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
 /* ─────────────────────────────────────────────────────────── celebration */
 
 .cheer {
@@ -1155,12 +1378,7 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 /* ─────────────────────────────────────────────────────────── responsive */
 
 @media (max-width: 1100px) {
-  .statbar { grid-template-columns: repeat(3, 1fr); }
-  .stat:nth-child(4) { border-left: 0; }
-  .stat:nth-child(n+4) { border-top: var(--rule) solid var(--ink); }
-  /* five cells into an even grid: the last one takes the slack rather than
-     leaving a hole in the row */
-  .stat:nth-child(5) { grid-column: span 2; }
+  .wordmark text { letter-spacing: -0.05em; }
   .legend-grid { grid-template-columns: repeat(2, 1fr); }
   .legend-block:nth-child(3) { border-left: 0; }
   .legend-block:nth-child(n+3) { border-top: var(--rule-sm) solid var(--ink); }
@@ -1175,6 +1393,10 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 
 @media (max-width: 760px) {
   body { padding: 14px 16px 48px; }
+  .masthead { padding: 12px 14px 0; box-shadow: 6px 6px 0 var(--ink); margin-bottom: 18px; }
+  .masthead-meta { grid-template-columns: 1fr; }
+  .meta-cell + .meta-cell { padding-left: 0; border-left: 0; border-top: var(--rule-sm) solid var(--ink); }
+  .tray-toggle { bottom: 16px; }
   .shell { box-shadow: 6px 6px 0 var(--ink); }
   .nav { grid-template-columns: 1fr 1fr; }
   .nav-brand { grid-column: span 2; }
@@ -1184,9 +1406,9 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
     border-top: var(--rule) solid var(--ink);
     border-left: 0;
   }
-  .statbar { grid-template-columns: repeat(2, 1fr); }
-  .stat:nth-child(odd) { border-left: 0; }
-  .stat:nth-child(n+3) { border-top: var(--rule) solid var(--ink); }
+  .statbar { grid-template-columns: 1fr; }
+  .stat { border-left: 0; border-top: var(--rule) solid var(--ink); }
+  .stat:first-child { border-top: 0; }
   .term { grid-template-columns: 1fr; }
   .term-rail {
     flex-direction: row;
@@ -1216,7 +1438,7 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card, .btn { transition: none; }
+  .card, .btn, .tray { transition: none; }
   .cheer-panel { animation: none; }
   .cheer-bit { display: none; }
 }
@@ -1226,8 +1448,10 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 @media print {
   body { padding: 0; background: #fff; }
   .shell { max-width: none; border: 0; box-shadow: none; }
-  .toolbar, .sheet, .toast, .cheer,
+  .toolbar, .sheet, .toast, .cheer, .finale,
+  .tray, .tray-toggle, .tray-scrim,
   .term-status, .term-del, .year-toggle, .footer-shout { display: none; }
+  body.tray-open { padding-right: 0; }
   /* the hidden column would otherwise leave its track empty */
   .footer { grid-template-columns: 1fr; }
   .footer-body { border-left: 0; }
