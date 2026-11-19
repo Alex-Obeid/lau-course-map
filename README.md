@@ -2,29 +2,67 @@
 
 An interactive course planner for Lebanese American University undergraduates.
 Plan your degree term by term, track grades and GPA, and catch prerequisite
-problems before registration instead of after it.
+problems before registration rather than after it.
 
 Currently covers **Mechanical Engineering**, study plan effective Fall 2026.
 
-## Status
-
-Early development.
-
 ## Features
 
-- Drag and drop courses between semesters
-- Prerequisite and corequisite checking, including rules the official flow
-  chart leaves out
-- Credit-load limits per LAU rules (18 fall/spring, 9 summer)
-- Letter grades with automatic cumulative and major GPA
-- Completed, failed and withdrawn course states
-- Semester locking once courses are actually registered
-- Liberal Arts and Sciences requirement tracking
-- Saves locally in the browser, with JSON export and import
+- **Drag and drop** courses between terms. Every term re-validates on the spot.
+- **Prerequisite checking** against the LAU catalog, not only the flow chart.
+  The chart under-reports: MEE212 needs GNE333, and the lab courses MEE404 and
+  MEE443 need GNE331. Cards carrying a prerequisite the chart omits are marked
+  **H**, and the warning says so.
+- **Corequisites and concurrency** handled separately. A corequisite may sit in
+  the same term or earlier; a course listed as *concurrent with* another must
+  share its term exactly.
+- **Class standing gates.** MEE301 and MEE321 need second-year standing,
+  INE320 and MEE491 third-year, MEE498 and the projects fifth-year. None of
+  this appears on the chart.
+- **Credit limits** per LAU rules: 18 in fall and spring, 9 in summer, 21 once
+  your cumulative GPA reaches 3.00, 13 while on probation. The cap shown on
+  each term updates as your GPA changes.
+- **Offering warnings.** Move a course out of the term the study plan puts it
+  in and it is flagged, because it may not be taught that term.
+- **Grades and GPA.** Full LAU scale with quality points. Cumulative and major
+  GPA, with only the latest attempt of a repeated course counted, as LAU does.
+- **Course states**: completed and struck through, failed, or withdrawn with
+  WI, WP and WF kept distinct since only WF counts as a repeat.
+- **Term locking** once you have actually registered. A locked term is
+  highlighted and refuses changes.
+- **Requirement tracking** for the LAS Z2026 categories, technical electives,
+  the SDG restricted elective and the SOE signature courses.
+- **Advisor override** per course, for when a waiver beats the rulebook.
+- Saves to the browser automatically, with JSON export and import.
 
 ## Running it
 
-Open `index.html` in a browser. There is no build step and no server required.
+Open `index.html` in a browser. No build step, no server.
+
+To serve it instead:
+
+```
+python -m http.server 8777
+```
+
+## Adding another program
+
+Course data lives in `data/mee.js` as plain data. Copy it, change the plan id
+at the top, and add a `<script>` tag for the new file in `index.html`.
+
+Prerequisites are stored as an AND of OR groups, so
+`[["MEE311", "CIE320"], ["MTH304"]]` reads as *(MEE311 or CIE320) and MTH304*.
+
+The file is JavaScript rather than JSON so the page works when opened straight
+from disk; browsers refuse `fetch()` on `file://` URLs.
+
+## Known gaps
+
+- Class standing thresholds are approximated at 30, 60, 90 and 120 credits.
+  LAU states standing in prerequisites but publishes the thresholds elsewhere.
+- The major GPA course set is a reasonable default, not an official definition.
+- Drag and drop uses the HTML5 API, which does not fire on touch screens. On a
+  phone, move a course with the Placement menu in its detail panel.
 
 ## Accuracy
 
