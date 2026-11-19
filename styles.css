@@ -19,12 +19,14 @@
   --rule:     3px;
   --rule-sm:  2px;
 
-  /* category fills — also read by the legend builder in app.js */
-  --cat-mee-bg: #ff3b21;  --cat-mee-bar: #0c0c0c;
-  --cat-mth-bg: #ffe400;  --cat-mth-bar: #0c0c0c;
-  --cat-eng-bg: #2b44ff;  --cat-eng-bar: #0c0c0c;
-  --cat-las-bg: #00d563;  --cat-las-bar: #0c0c0c;
-  --cat-ele-bg: #0c0c0c;  --cat-ele-bar: #ffffff;
+  /* category fills, one per CAPP requirement area — the legend reads these */
+  --cat-mee-major:     #ff3b21;
+  --cat-tech-elective: #0c0c0c;
+  --cat-math-sci:      #ff2d87;
+  --cat-gen-eng:       #2b44ff;
+  --cat-las-core:      #ffe400;
+  --cat-las-elective:  #00d563;
+  --cat-basic-eng:     #ff9500;
 
   --sans: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: "Space Mono", "SFMono-Regular", Consolas, monospace;
@@ -543,11 +545,13 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 .card.dragging { opacity: .35; }
 .card.is-pinned { cursor: pointer; }
 
-.card[data-cat="mee-core"]    { --fill: var(--red);    --on: var(--ink); }
-.card[data-cat="math-sci"]    { --fill: var(--yellow); --on: var(--ink); }
-.card[data-cat="engr-common"] { --fill: var(--blue);   --on: #ffffff; }
-.card[data-cat="las"]         { --fill: var(--green);  --on: var(--ink); }
-.card[data-cat="elective"]    { --fill: var(--ink);    --on: #ffffff; }
+.card[data-cat="mee-major"]     { --fill: var(--cat-mee-major);     --on: var(--ink); }
+.card[data-cat="tech-elective"] { --fill: var(--cat-tech-elective); --on: #ffffff; }
+.card[data-cat="math-sci"]      { --fill: var(--cat-math-sci);      --on: var(--ink); }
+.card[data-cat="gen-eng"]       { --fill: var(--cat-gen-eng);       --on: #ffffff; }
+.card[data-cat="las-core"]      { --fill: var(--cat-las-core);      --on: var(--ink); }
+.card[data-cat="las-elective"]  { --fill: var(--cat-las-elective);  --on: var(--ink); }
+.card[data-cat="basic-eng"]     { --fill: var(--cat-basic-eng);     --on: var(--ink); }
 
 .card-code {
   font-family: var(--mono);
@@ -755,6 +759,19 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 .req { padding: 12px 0; border-top: var(--rule-sm) solid var(--ink); }
 .req:first-child { border-top: 0; }
 
+.req-head {
+  margin: 22px 0 0;
+  padding-bottom: 5px;
+  border-bottom: var(--rule) solid var(--ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.req-head:first-child { margin-top: 0; }
+.req-head + .req { border-top: 0; }
+
 .req-top {
   display: flex;
   align-items: baseline;
@@ -940,11 +957,13 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
   text-transform: uppercase;
 }
 
-.cat-tag[data-cat="mee-core"]    { background: var(--red);    color: var(--ink); }
-.cat-tag[data-cat="math-sci"]    { background: var(--yellow); color: var(--ink); }
-.cat-tag[data-cat="engr-common"] { background: var(--blue);   color: #fff; }
-.cat-tag[data-cat="las"]         { background: var(--green);  color: var(--ink); }
-.cat-tag[data-cat="elective"]    { background: var(--ink);    color: #fff; }
+.cat-tag[data-cat="mee-major"]     { background: var(--cat-mee-major);     color: var(--ink); }
+.cat-tag[data-cat="tech-elective"] { background: var(--cat-tech-elective); color: #fff; }
+.cat-tag[data-cat="math-sci"]      { background: var(--cat-math-sci);      color: var(--ink); }
+.cat-tag[data-cat="gen-eng"]       { background: var(--cat-gen-eng);       color: #fff; }
+.cat-tag[data-cat="las-core"]      { background: var(--cat-las-core);      color: var(--ink); }
+.cat-tag[data-cat="las-elective"]  { background: var(--cat-las-elective);  color: var(--ink); }
+.cat-tag[data-cat="basic-eng"]     { background: var(--cat-basic-eng);     color: var(--ink); }
 
 .sheet-sub {
   margin: 10px 0 20px;

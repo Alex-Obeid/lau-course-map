@@ -37,8 +37,8 @@ Currently covers **Mechanical Engineering**, study plan effective Fall 2026.
   you; the year band keeps showing its credits and how many terms are done.
 - **Drag to reorder**, inside a term as well as between terms. A ghost marks
   where the card will land before you let go.
-- **Requirement tracking** for the LAS Z2026 categories, technical electives,
-  the SDG restricted elective and the SOE signature requirement.
+- **Requirement tracking** by CAPP area, plus the LAS Z2026 categories,
+  technical electives, the SDG restricted elective and the SOE signature.
 - **SOE signature is counted in credits, not courses**, because VIP+ courses
   substitute for it and come in 1, 2 and 3 credit versions that stack. Pick
   from VIP201 through VIP403, and add as many slots as you need until the six
@@ -63,6 +63,34 @@ python -m http.server 8777
 
 Type is Archivo and Space Mono from Google Fonts. Offline, the page falls back
 to Helvetica and a system monospace; the layout does not shift.
+
+## Requirement areas
+
+Courses are grouped the way LAU's CAPP degree evaluation groups them, and the
+colours follow that grouping rather than the course code. The areas add up to
+the 180 credits the degree requires:
+
+| Area | Credits | Colour |
+|---|---|---|
+| Mechanical Eng. Major (course list + technical electives) | 88 | red, black |
+| Math and Science | 21 | pink |
+| General Engineering | 23 | blue |
+| LASCZ Core | 6 | yellow |
+| LAS Elective, Curriculum Z | 12 | green |
+| Basic English | 6 | orange |
+| Baccalaureate (transfer credit) | 24 | not placed on the board |
+
+The split is not what the course codes suggest. **CIE200 Statics sits under
+Math and Science**, and **MEE211 Engineering Graphics under General
+Engineering**, despite the MEE prefix. GNE331 and GNE333 are Math and Science;
+COE212, ELE305, GNE301, GNE303, INE320 and INE428 are General Engineering.
+None of them count toward the major GPA.
+
+**Major GPA** is computed over the 88-credit major area and nothing else.
+
+**Baccalaureate credit** is 24, not 30. ENG101 and ENG102 make up the rest of
+the freshman-year total, but they are real graded courses that count toward
+the CGPA, so they live on the board rather than in the entry figure.
 
 ## Design
 
@@ -95,7 +123,9 @@ from disk; browsers refuse `fetch()` on `file://` URLs.
 
 - Class standing thresholds are approximated at 30, 60, 90 and 120 credits.
   LAU states standing in prerequisites but publishes the thresholds elsewhere.
-- The major GPA course set is a reasonable default, not an official definition.
+- CAPP leaves failed required courses out of its own major GPA until the major
+  is complete. This tool counts them, per the academic rules, so the two can
+  differ while courses are outstanding.
 - Drag and drop uses the HTML5 API, which does not fire on touch screens. On a
   phone, move a course with the Placement menu in its detail panel.
 
