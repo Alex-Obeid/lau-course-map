@@ -31,9 +31,18 @@ Currently covers **Mechanical Engineering**, study plan effective Fall 2026.
 - **Term locking** once you have actually registered. A locked term is
   highlighted and refuses changes.
 - **Requirement tracking** for the LAS Z2026 categories, technical electives,
-  the SDG restricted elective and the SOE signature courses.
+  the SDG restricted elective and the SOE signature requirement.
+- **SOE signature is counted in credits, not courses**, because VIP+ courses
+  substitute for it and come in 1, 2 and 3 credit versions that stack. Pick
+  from VIP201 through VIP403, and add as many slots as you need until the six
+  credits are covered.
 - **Advisor override** per course, for when a waiver beats the rulebook.
 - Saves to the browser automatically, with JSON export and import.
+
+Courses the plan does not schedule — the freshman English pair ENG101 and
+ENG102, for instance — sit in **Unplaced** so you can drag them onto the board
+if you actually took them. They count as satisfied for prerequisite purposes
+either way, since entry credits already cover them.
 
 ## Running it
 
@@ -64,6 +73,10 @@ hazard band for anything with a conflict.
 
 Course data lives in `data/mee.js` as plain data. Copy it, change the plan id
 at the top, and add a `<script>` tag for the new file in `index.html`.
+
+A slot (`"slot": "technical"`, `"soe"`, `"las"`, …) is a placeholder the
+student fills in. Give its `slotOptions` entry a `creditsRequired` and the
+requirement is measured in credits rather than courses.
 
 Prerequisites are stored as an AND of OR groups, so
 `[["MEE311", "CIE320"], ["MTH304"]]` reads as *(MEE311 or CIE320) and MTH304*.

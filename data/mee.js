@@ -112,7 +112,6 @@ window.PLANS['lau-mee-2026f'] = {
     "note": "Referenced by prerequisites but not part of this plan. Freshman-level courses are assumed satisfied for students entering with advanced standing.",
     "MTH102": { "title": "Calculus II", "credits": 3, "freshman": true },
     "PHY111": { "title": "Mechanics", "credits": 3, "freshman": true },
-    "ENG101": { "title": "Academic English I", "credits": 3, "freshman": true },
     "CIE320": { "title": "Fluid Mechanics (Civil)", "credits": 3, "freshman": false },
     "ELE401": { "title": "Electronics I", "credits": 3, "freshman": false }
   },
@@ -122,6 +121,10 @@ window.PLANS['lau-mee-2026f'] = {
       "prereqs": [], "freshmanPrereqs": ["MTH102", "PHY111"] },
     { "id": "MEE211", "code": "MEE211", "title": "Engineering Graphics", "credits": 1, "category": "engr-common", "prereqs": [] },
     { "id": "COE212", "code": "COE212", "title": "Engineering Programming", "credits": 3, "category": "engr-common", "prereqs": [] },
+    { "id": "ENG101", "code": "ENG101", "title": "Academic English I", "credits": 3, "category": "las",
+      "prereqs": [], "freshman": true },
+    { "id": "ENG102", "code": "ENG102", "title": "Academic English II", "credits": 3, "category": "las",
+      "prereqs": [], "freshman": true },
     { "id": "ENG202", "code": "ENG202", "title": "Advanced Academic English", "credits": 3, "category": "las", "prereqs": [] },
     { "id": "MTH201", "code": "MTH201", "title": "Calculus III", "credits": 3, "category": "math-sci",
       "prereqs": [], "freshmanPrereqs": ["MTH102"] },
@@ -186,8 +189,8 @@ window.PLANS['lau-mee-2026f'] = {
     { "id": "TE4",  "title": "Technical Elective 4/5", "credits": 3, "category": "elective", "slot": "technical", "prereqs": [] },
     { "id": "TE5",  "title": "Technical Elective 5/5", "credits": 3, "category": "elective", "slot": "technical", "prereqs": [] },
     { "id": "SDG",  "title": "SDG Restricted Elective", "credits": 3, "category": "elective", "slot": "restricted", "prereqs": [] },
-    { "id": "SOE1", "title": "SOE Signature Course 1/2", "credits": 3, "category": "engr-common", "slot": "soe", "prereqs": [] },
-    { "id": "SOE2", "title": "SOE Signature Course 2/2", "credits": 3, "category": "engr-common", "slot": "soe", "prereqs": [] }
+    { "id": "SOE1", "title": "SOE Signature Course", "credits": 3, "category": "engr-common", "slot": "soe", "prereqs": [] },
+    { "id": "SOE2", "title": "SOE Signature Course", "credits": 3, "category": "engr-common", "slot": "soe", "prereqs": [] }
   ],
 
   "template": [
@@ -251,7 +254,24 @@ window.PLANS['lau-mee-2026f'] = {
       ]
     },
     "restricted": { "label": "SDG Restricted Elective", "pick": 1, "freeText": true, "options": [] },
-    "soe":        { "label": "SOE Signature Course", "pick": 2, "freeText": true, "options": [] },
+    "soe": {
+      "label": "SOE Signature Course",
+      "pick": 2,
+      "creditsRequired": 6,
+      "variableCredits": true,
+      "freeText": true,
+      "note": "VIP+ courses substitute for the signature course and come in 1, 2 and 3 credit versions, so they stack until the credit total is met.",
+      "options": [
+        { "code": "VIP201", "title": "Vertically Integrated Projects", "credits": 1, "prereqs": [], "standing": "second-year" },
+        { "code": "VIP202", "title": "Vertically Integrated Projects", "credits": 2, "prereqs": [], "standing": "second-year" },
+        { "code": "VIP301", "title": "Vertically Integrated Projects", "credits": 1, "prereqs": [], "standing": "third-year" },
+        { "code": "VIP302", "title": "Vertically Integrated Projects", "credits": 2, "prereqs": [], "standing": "third-year" },
+        { "code": "VIP303", "title": "Vertically Integrated Projects", "credits": 3, "prereqs": [], "standing": "third-year" },
+        { "code": "VIP401", "title": "Vertically Integrated Projects", "credits": 1, "prereqs": [], "standing": "fourth-year" },
+        { "code": "VIP402", "title": "Vertically Integrated Projects", "credits": 2, "prereqs": [], "standing": "fourth-year" },
+        { "code": "VIP403", "title": "Vertically Integrated Projects", "credits": 3, "prereqs": [], "standing": "fourth-year" }
+      ]
+    },
     "las": {
       "label": "LAS Elective",
       "pick": 4,
@@ -269,6 +289,7 @@ window.PLANS['lau-mee-2026f'] = {
   "sources": [
     "LAU Flow Chart, Mechanical Engineering Program, effective Fall 2026",
     "LAU Academic Catalog 2026-2027, course descriptions",
-    "LAU Academic Catalog 2026-2027, Academic Rules and Procedures"
+    "LAU Academic Catalog 2026-2027, Academic Rules and Procedures",
+    "LAU School of Engineering, VIP+ model and schedule"
   ]
 };

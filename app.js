@@ -76,6 +76,8 @@
   }
 
   function isFreshmanCourse(code) {
+    var own = courseById[code];
+    if (own && own.freshman) return true;
     var ext = plan.externalCourses && plan.externalCourses[code];
     return !!(ext && ext.freshman);
   }
@@ -83,6 +85,11 @@
   /* --------------------------------------------------- effective course view
      A slot course (Technical Elective, LAS, Science) carries whatever the
      student picked for it. Everything else is the catalog entry as-is. */
+
+  function identity(item) {
+    var eff = effective(item);
+    return eff.code || item.ref;
+  }
 
   function effective(item) {
     var base = courseById[item.ref];
@@ -142,6 +149,23 @@
 
   /* --------------------------------------------------------------- state */
 
+  function blankItem(ref, termId) {
+    return {
+      uid: uid(), ref: ref, termId: termId,
+      grade: null, done: false, override: false, pick: null, lasCat: null
+    };
+  }
+
+  // Courses the catalog carries but the official plan does not schedule — the
+  // freshman English pair, say — belong in the tray rather than nowhere.
+  function addMissingCourses(items) {
+    plan.courses.forEach(function (c) {
+      var present = items.some(function (i) { return i.ref === c.id; });
+      if (!present) items.push(blankItem(c.id, null));
+    });
+    return items;
+  }
+
   function freshState() {
     var s = {
       planId: PLAN_ID,
@@ -155,13 +179,9 @@
     plan.template.forEach(function (row) {
       var t = { id: uid(), locked: false };
       s.terms.push(t);
-      row.courses.forEach(function (ref) {
-        s.items.push({
-          uid: uid(), ref: ref, termId: t.id,
-          grade: null, done: false, override: false, pick: null, lasCat: null
-        });
-      });
+      row.courses.forEach(function (ref) { s.items.push(blankItem(ref, t.id)); });
     });
+    addMissingCourses(s.items);
     return s;
   }
 
@@ -172,7 +192,8 @@
     try {
       var s = JSON.parse(raw);
       if (!s || !Array.isArray(s.terms) || !Array.isArray(s.items)) return freshState();
-      s.items = s.items.filter(function (i) { return courseById[i.ref]; });
+      s.items = addMissingCourses(
+        s.items.filter(function (i) { return courseById[i.ref]; }));
       if (s.planVersion !== plan.plan.planVersion) {
         setTimeout(function () {
           toast('A newer study plan is available. Export your work, then use Reset to plan.');
@@ -243,7 +264,7 @@
       if (item.termId == null) return;
       var g = gradeInfo(item);
       if (!g || !g.inGPA) return;
-      var key = effective(item).label;
+      var key = identity(item);
       var idx = termIndexOf(item.termId);
       if (!latest[key] || idx > latest[key].idx) latest[key] = { item: item, idx: idx };
     });
@@ -277,10 +298,10 @@
     var seen = {}, total = 0;
     state.items.forEach(function (item) {
       if (item.termId == null || !isPassed(item)) return;
-      var eff = effective(item);
-      if (seen[eff.label]) return;
-      seen[eff.label] = true;
-      total += eff.credits;
+      var key = identity(item);
+      if (seen[key]) return;
+      seen[key] = true;
+      total += effective(item).credits;
     });
     return total;
   }
@@ -289,10 +310,10 @@
     var seen = {}, total = 0;
     state.items.forEach(function (item) {
       if (item.termId == null || isWithdrawn(item)) return;
-      var eff = effective(item);
-      if (seen[eff.label]) return;
-      seen[eff.label] = true;
-      total += eff.credits;
+      var key = identity(item);
+      if (seen[key]) return;
+      seen[key] = true;
+      total += effective(item).credits;
     });
     return total;
   }
@@ -303,10 +324,10 @@
       if (item.termId == null) return;
       if (termIndexOf(item.termId) >= termIdx) return;
       if (!countsAsTaken(item)) return;
-      var eff = effective(item);
-      if (seen[eff.label]) return;
-      seen[eff.label] = true;
-      total += eff.credits;
+      var key = identity(item);
+      if (seen[key]) return;
+      seen[key] = true;
+      total += effective(item).credits;
     });
     return state.entryCredits + total;
   }
@@ -339,14 +360,14 @@
     state.items.forEach(function (item) {
       if (item.termId == null || !countsAsTaken(item)) return;
       var idx = termIndexOf(item.termId);
-      var key = effective(item).label;
+      var key = identity(item);
       if (placedAt[key] == null || idx < placedAt[key]) placedAt[key] = idx;
     });
 
     var attempts = {};
     state.items.forEach(function (item) {
       if (item.termId == null) return;
-      var key = effective(item).label;
+      var key = identity(item);
       attempts[key] = (attempts[key] || 0) + 1;
     });
 
@@ -421,9 +442,9 @@
           'No course chosen yet for this ' + plan.slotOptions[eff.slot].label + ' slot.');
       }
 
-      if (attempts[eff.label] > plan.rules.repeats.maxRegistrations) {
+      if (attempts[identity(item)] > plan.rules.repeats.maxRegistrations) {
         flag(item, 'repeat', 'error',
-          'Registered ' + attempts[eff.label] + ' times. LAU allows ' +
+          'Registered ' + attempts[identity(item)] + ' times. LAU allows ' +
           plan.rules.repeats.maxRegistrations + '.');
       }
     });
@@ -707,17 +728,25 @@
 
     // Slots that need a specific course chosen.
     [['technical', 'Technical electives'], ['restricted', 'SDG restricted elective'],
-     ['soe', 'SOE signature courses'], ['science', 'Science elective']
+     ['soe', 'SOE signature'], ['science', 'Science elective']
     ].forEach(function (pair) {
       var key = pair[0];
-      var total = 0, chosen = 0;
+      var cfg = plan.slotOptions[key];
+      var total = 0, chosen = 0, credits = 0;
       state.items.forEach(function (item) {
         var base = courseById[item.ref];
         if (!base || base.slot !== key || item.termId == null) return;
         total += 1;
-        if (item.pick) chosen += 1;
+        if (item.pick) { chosen += 1; credits += effective(item).credits; }
       });
-      if (total) bar(pair[1], chosen, total, 'courses chosen', false);
+      if (!total) return;
+      // VIP+ courses come in 1, 2 and 3 credit sizes and stack, so the
+      // signature requirement is measured in credits rather than courses.
+      if (cfg.creditsRequired) {
+        bar(pair[1], credits, cfg.creditsRequired, 'credits chosen', false);
+      } else {
+        bar(pair[1], chosen, total, 'courses chosen', false);
+      }
     });
 
     bar('Total credits', analysis.earned + state.entryCredits,
@@ -857,17 +886,21 @@
     psec.appendChild(ov);
 
     var row = el('div', 'sheet-row');
-    var dup = el('button', 'btn btn-quiet', 'Add retake');
+    var isSlot = !!eff.slot;
+    var dup = el('button', 'btn',
+      isSlot ? 'Add another ' + plan.slotOptions[eff.slot].label : 'Add retake');
     dup.type = 'button';
     dup.addEventListener('click', function () {
-      state.items.push({
-        uid: uid(), ref: item.ref, termId: null, grade: null,
-        done: false, override: false,
-        pick: item.pick ? JSON.parse(JSON.stringify(item.pick)) : null,
-        lasCat: item.lasCat
-      });
+      var copy = blankItem(item.ref, null);
+      if (!isSlot) {
+        copy.pick = item.pick ? JSON.parse(JSON.stringify(item.pick)) : null;
+        copy.lasCat = item.lasCat;
+      }
+      state.items.push(copy);
       render();
-      toast('Retake added to unplaced courses.');
+      toast(isSlot
+        ? 'Empty slot added to unplaced courses.'
+        : 'Retake added to unplaced courses.');
       closeSheet();
     });
     row.appendChild(dup);
@@ -881,6 +914,7 @@
     var cfg = plan.slotOptions[eff.slot];
     var sec = el('div', 'sheet-section');
     sec.appendChild(el('h4', null, cfg.label));
+    if (cfg.note) sec.appendChild(el('div', 'sheet-note quiet', cfg.note));
 
     if (cfg.options && cfg.options.length) {
       var sel = document.createElement('select');
