@@ -17,6 +17,7 @@
   --green:    #00d563;
 
   --rule:     3px;
+  --break:    26px;
   --rule-sm:  2px;
 
   /* category fills, one per CAPP requirement area — the legend reads these */
@@ -73,7 +74,7 @@ b, strong { font-weight: 800; }
 
 .masthead {
   max-width: 1400px;
-  margin: 0 auto 26px;
+  margin: 0 auto var(--break);
   padding: 16px 22px 0;
   background: var(--paper);
   border: var(--rule) solid var(--ink);
@@ -122,12 +123,22 @@ b, strong { font-weight: 800; }
 }
 
 .shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--break);
   max-width: 1400px;
   margin: 0 auto;
+}
+
+/* every section is its own card, with the same break between them as sits
+   under the masthead */
+.surface {
   background: var(--paper);
   border: var(--rule) solid var(--ink);
-  box-shadow: 12px 12px 0 var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
 }
+
+main { display: flex; flex-direction: column; gap: var(--break); }
 
 /* ───────────────────────────────────────────────────────────────── nav */
 
@@ -175,11 +186,7 @@ b, strong { font-weight: 800; }
 
 /* ─────────────────────────────────────────────────────────────── stats */
 
-.statbar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border-bottom: var(--rule) solid var(--ink);
-}
+.statbar { display: grid; grid-template-columns: repeat(3, 1fr); }
 
 .stat {
   display: flex;
@@ -250,7 +257,7 @@ b, strong { font-weight: 800; }
   gap: 12px;
   flex-wrap: wrap;
   padding: 18px 22px;
-  border-bottom: var(--rule) solid var(--ink);
+  border-top: var(--rule) solid var(--ink);
   background: var(--wash);
 }
 
@@ -303,7 +310,7 @@ b, strong { font-weight: 800; }
 
 /* ──────────────────────────────────────────────────────────── sections */
 
-.block { border-bottom: var(--rule) solid var(--ink); }
+.block { min-width: 0; }
 
 .block-head {
   display: grid;
@@ -341,8 +348,7 @@ b, strong { font-weight: 800; }
   color: var(--ink-2);
 }
 
-.split { display: grid; grid-template-columns: 1fr 1fr; }
-.split > .block:first-child { border-right: var(--rule) solid var(--ink); }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--break); }
 
 /* ─────────────────────────────────────────────────────────────── board */
 
@@ -1437,7 +1443,10 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 
 @media (max-width: 760px) {
   body { padding: 14px 16px 48px; }
-  .masthead { padding: 12px 14px 0; box-shadow: 6px 6px 0 var(--ink); margin-bottom: 18px; }
+  :root { --break: 16px; }
+  .surface { box-shadow: 5px 5px 0 var(--ink); }
+  .split { gap: var(--break); }
+  .masthead { padding: 12px 14px 0; box-shadow: 5px 5px 0 var(--ink); }
   .masthead-meta { grid-template-columns: 1fr; }
   .meta-cell + .meta-cell { padding-left: 0; border-left: 0; border-top: var(--rule-sm) solid var(--ink); }
   .tray-toggle { bottom: 16px; }
@@ -1491,7 +1500,9 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 
 @media print {
   body { padding: 0; background: #fff; }
-  .shell { max-width: none; border: 0; box-shadow: none; }
+  :root { --break: 0px; }
+  .shell { max-width: none; }
+  .surface, .masthead { box-shadow: none; }
   .toolbar, .sheet, .toast, .cheer, .finale,
   .tray, .tray-toggle, .tray-scrim,
   .term-status, .term-del, .year-toggle, .footer-shout { display: none; }

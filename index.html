@@ -36,8 +36,9 @@
 
 <div class="shell">
 
-  <!-- ───────────────────────────────────────────── stats -->
-  <section class="statbar" id="statbar">
+  <!-- ──────────────────────────────────── stats and controls -->
+  <section class="surface controls">
+  <div class="statbar" id="statbar">
     <div class="stat">
       <div class="stat-banner">
         <span class="stat-num">01</span>
@@ -68,9 +69,8 @@
         <span class="stat-sub" id="statMGPASub">no graded courses</span>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ─────────────────────────────────────────── toolbar -->
   <div class="toolbar">
     <label class="field">
       <span class="micro">Start term</span>
@@ -95,11 +95,12 @@
     <button type="button" class="btn btn-danger" id="btnReset">Reset <i>&#8635;</i></button>
     <input type="file" id="importFile" accept="application/json,.json" hidden>
   </div>
+  </section>
 
   <main>
 
     <!-- ─────────────────────────────────────────── board -->
-    <section class="block" id="boardBlock">
+    <section class="block surface" id="boardBlock">
       <div class="block-head">
         <span class="block-num num-red">01</span>
         <h2>The board</h2>
@@ -125,7 +126,7 @@
 
     <div class="split">
       <!-- ───────────────────────────────────── conflicts -->
-      <section class="block">
+      <section class="block surface">
         <div class="block-head">
           <span class="block-num num-blue">02</span>
           <h2>Conflicts</h2>
@@ -135,7 +136,7 @@
       </section>
 
       <!-- ────────────────────────────────── requirements -->
-      <section class="block">
+      <section class="block surface">
         <div class="block-head">
           <span class="block-num num-green">03</span>
           <h2>Requirements</h2>
@@ -146,7 +147,7 @@
     </div>
 
     <!-- ────────────────────────────────────────── legend -->
-    <section class="block">
+    <section class="block surface">
       <div class="block-head">
         <span class="block-num num-yellow">04</span>
         <h2>Index</h2>
@@ -190,7 +191,7 @@
   </main>
 
   <!-- ──────────────────────────────────────────── footer -->
-  <footer class="footer">
+  <footer class="footer surface">
     <div class="footer-shout">
       Built<br>for<br>students.
     </div>
