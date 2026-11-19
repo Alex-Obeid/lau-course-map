@@ -1075,12 +1075,18 @@
     var host = $('requirements');
     host.textContent = '';
 
-    function bar(name, have, need, detail, overable) {
+    // cat paints the row in its requirement area's colour, the same one the
+    // cards and the index use.
+    function bar(name, have, need, detail, overable, cat) {
       var d = el('div', 'req');
+      if (cat) d.dataset.cat = cat;
       if (have >= need) d.classList.add('is-met');
       if (overable && have > need) d.classList.add('is-over');
       var top = el('div', 'req-top');
-      top.appendChild(el('span', 'req-name', name));
+      var label = el('span', 'req-label');
+      if (cat) label.appendChild(el('span', 'req-swatch'));
+      label.appendChild(el('span', 'req-name', name));
+      top.appendChild(label);
       top.appendChild(el('span', 'req-count', have + ' / ' + need));
       d.appendChild(top);
       var b = el('div', 'req-bar');
@@ -1101,7 +1107,7 @@
       bar(area.label, got.earned, area.credits,
           area.entryCredits ? 'transfer credits, no grade points'
                             : got.planned + ' credits placed',
-          false);
+          false, area.categories && area.categories[0]);
     });
 
     // LAS categories.
@@ -1117,7 +1123,7 @@
     });
     las.requirements.forEach(function (r) {
       bar('LAS — ' + r.label, counts[r.id] || 0, r.count,
-          r.credits + ' credits', true);
+          r.credits + ' credits', true, 'las-elective');
     });
     if (unassigned) {
       host.appendChild(el('p', 'req-detail',
@@ -1127,6 +1133,10 @@
 
     // Slots that need a specific course chosen.
     host.appendChild(el('h3', 'req-head', 'Still to choose'));
+    var SLOT_CAT = {
+      technical: 'tech-elective', restricted: 'tech-elective',
+      soe: 'gen-eng', science: 'math-sci'
+    };
     [['technical', 'Technical electives'], ['restricted', 'SDG restricted elective'],
      ['soe', 'SOE signature'], ['science', 'Science elective']
     ].forEach(function (pair) {
@@ -1143,9 +1153,9 @@
       // VIP+ courses come in 1, 2 and 3 credit sizes and stack, so the
       // signature requirement is measured in credits rather than courses.
       if (cfg.creditsRequired) {
-        bar(pair[1], credits, cfg.creditsRequired, 'credits chosen', false);
+        bar(pair[1], credits, cfg.creditsRequired, 'credits chosen', false, SLOT_CAT[key]);
       } else {
-        bar(pair[1], chosen, total, 'courses chosen', false);
+        bar(pair[1], chosen, total, 'courses chosen', false, SLOT_CAT[key]);
       }
     });
 
