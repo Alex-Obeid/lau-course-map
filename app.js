@@ -313,14 +313,10 @@
     return Object.keys(latest).map(function (k) { return latest[k].item; });
   }
 
+  // The major is an area, not a prefix. CAPP files CIE200 under maths and
+  // MEE211 under general engineering, however their codes read.
   function inMajor(eff) {
-    var m = plan.majorGPA;
-    if (m.excludeCodes.indexOf(eff.label) !== -1) return false;
-    if (eff.slot && m.includeSlots.indexOf(eff.slot) !== -1) return true;
-    for (var i = 0; i < m.defaultPrefixes.length; i++) {
-      if (eff.label.indexOf(m.defaultPrefixes[i]) === 0) return true;
-    }
-    return false;
+    return plan.majorGPA.categories.indexOf(eff.category) !== -1;
   }
 
   function computeGPA(onlyMajor) {
@@ -929,6 +925,25 @@
     });
   }
 
+  // Credits sitting in one requirement area, each course counted once.
+  function areaCredits(area) {
+    if (area.entryCredits) {
+      return { earned: state.entryCredits, planned: state.entryCredits };
+    }
+    var seen = {}, earned = 0, planned = 0;
+    state.items.forEach(function (item) {
+      if (item.termId == null) return;
+      var eff = effective(item);
+      if (area.categories.indexOf(eff.category) === -1) return;
+      var key = identity(item);
+      if (seen[key]) return;
+      seen[key] = true;
+      if (!isWithdrawn(item)) planned += eff.credits;
+      if (isPassed(item)) earned += eff.credits;
+    });
+    return { earned: earned, planned: planned };
+  }
+
   function renderRequirements() {
     var host = $('requirements');
     host.textContent = '';
@@ -950,7 +965,19 @@
       host.appendChild(d);
     }
 
+    // One row per CAPP requirement area, read in earned credits the way the
+    // degree evaluation reads them.
+    host.appendChild(el('h3', 'req-head', 'Requirement areas'));
+    (plan.areas || []).forEach(function (area) {
+      var got = areaCredits(area);
+      bar(area.label, got.earned, area.credits,
+          area.entryCredits ? 'transfer credits, no grade points'
+                            : got.planned + ' credits placed',
+          false);
+    });
+
     // LAS categories.
+    host.appendChild(el('h3', 'req-head', 'LAS Curriculum Z detail'));
     var las = plan.slotOptions.las;
     var counts = {};
     var unassigned = 0;
@@ -971,6 +998,7 @@
     }
 
     // Slots that need a specific course chosen.
+    host.appendChild(el('h3', 'req-head', 'Still to choose'));
     [['technical', 'Technical electives'], ['restricted', 'SDG restricted elective'],
      ['soe', 'SOE signature'], ['science', 'Science elective']
     ].forEach(function (pair) {
@@ -993,8 +1021,9 @@
       }
     });
 
+    host.appendChild(el('h3', 'req-head', 'Degree total'));
     bar('Total credits', analysis.earned + state.entryCredits,
-        totalRequired(), 'earned, including entry credits', false);
+        totalRequired(), 'earned, including Baccalaureate credits', false);
   }
 
   /* ---------------------------------------------------------- detail sheet */
@@ -1261,16 +1290,11 @@
       var li = el('li');
       var sw = el('span', 'swatch');
       sw.style.background = getComputedStyle(document.documentElement)
-        .getPropertyValue('--cat-' + shortKey(key) + '-bg');
+        .getPropertyValue('--cat-' + key);
       li.appendChild(sw);
       li.appendChild(document.createTextNode(plan.categories[key].label));
       host.appendChild(li);
     });
-  }
-
-  function shortKey(category) {
-    return { 'mee-core': 'mee', 'elective': 'ele', 'math-sci': 'mth',
-             'engr-common': 'eng', 'las': 'las' }[category];
   }
 
   /* ----------------------------------------------------------------- chrome */
