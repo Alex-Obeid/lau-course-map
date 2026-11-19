@@ -45,6 +45,21 @@ To serve it instead:
 python -m http.server 8777
 ```
 
+Type is Archivo and Space Mono from Google Fonts. Offline, the page falls back
+to Helvetica and a system monospace; the layout does not shift.
+
+## Design
+
+Neo-brutalist: a white sheet on a warm ground, 3px black rules, flat saturated
+colour and hard offset shadows. No radii, no gradients.
+
+Colour carries meaning rather than decoration. Each course category owns one
+fill — red for the MEE core, yellow for maths and science, blue for common
+engineering, green for LAS, black for electives — and course *state* is told
+some other way, so the two never compete: diagonal hatching for completed,
+greyscale for withdrawn, a red shadow for failed, and a black-and-yellow
+hazard band for anything with a conflict.
+
 ## Adding another program
 
 Course data lives in `data/mee.js` as plain data. Copy it, change the plan id

@@ -5,54 +5,110 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LAU Course Map</title>
 <meta name="description" content="Interactive degree planner for LAU undergraduates.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header class="masthead">
-  <div class="masthead-top">
-    <div class="wordmark">
-      <span class="wordmark-mark"></span>
-      <h1>Course<br>Map.</h1>
-    </div>
+<div class="shell">
 
-    <div class="masthead-meta">
-      <p class="program" id="programName">Mechanical Engineering</p>
-      <p class="effective" id="effectiveLabel">Effective Fall 2026</p>
+  <!-- ─────────────────────────────────────────────── nav -->
+  <header class="nav">
+    <a class="nav-brand" href="#board">COURSE<br>MAP.</a>
+    <div class="nav-cell">
+      <span class="micro">Program</span>
+      <strong id="programName">Mechanical Engineering</strong>
     </div>
+    <div class="nav-cell">
+      <span class="micro">Study plan</span>
+      <strong id="effectiveLabel">Effective Fall 2026</strong>
+    </div>
+    <div class="nav-cell nav-cell-flag">
+      <span class="micro">Institution</span>
+      <strong>LAU &middot; School of Engineering</strong>
+    </div>
+  </header>
+
+  <!-- ────────────────────────────────────────────── hero -->
+  <section class="hero">
+    <div class="hero-type">
+      <h1>PLAN<br>EVERY<br>TERM.</h1>
+      <p class="hero-lede">
+        Drag courses between semesters. Prerequisites, corequisites, class
+        standing and credit limits are checked against the LAU catalog as you
+        move &mdash; including the ones the official flow chart never draws.
+      </p>
+      <div class="hero-marks">
+        <span class="chip chip-red">Prerequisites</span>
+        <span class="chip chip-blue">GPA</span>
+        <span class="chip chip-green">Credit limits</span>
+        <span class="chip chip-yellow">LAS tracking</span>
+      </div>
+    </div>
+    <div class="hero-side">
+      <div class="hero-block hero-block-red">
+        <span class="hero-block-num" id="heroCredits">&mdash;</span>
+        <span class="hero-block-label">Credits in the plan</span>
+      </div>
+      <div class="hero-block hero-block-ink">
+        <span class="hero-block-num" id="heroCourses">&mdash;</span>
+        <span class="hero-block-label">Courses mapped</span>
+      </div>
+      <div class="hero-block hero-block-yellow">
+        <span class="hero-block-num" id="heroTerms">&mdash;</span>
+        <span class="hero-block-label">Terms in the plan</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────────────────────────── strip -->
+  <div class="strip">
+    <span class="strip-year">(2026)</span>
+    <span class="strip-text">Plan it. Check it. Then register with no surprises.</span>
+    <span class="strip-arrow" aria-hidden="true">&rarr;</span>
+    <span class="strip-flag">Saved in this browser</span>
   </div>
 
-  <div class="statbar" id="statbar">
+  <!-- ───────────────────────────────────────────── stats -->
+  <section class="statbar" id="statbar">
     <div class="stat">
+      <span class="stat-num">01</span>
       <span class="stat-label">Credits earned</span>
       <span class="stat-value" id="statEarned">0</span>
       <span class="stat-sub" id="statEarnedSub">of 150</span>
     </div>
     <div class="stat">
+      <span class="stat-num">02</span>
       <span class="stat-label">Credits planned</span>
       <span class="stat-value" id="statPlanned">0</span>
       <span class="stat-sub" id="statPlannedSub">incl. freshman</span>
     </div>
-    <div class="stat">
+    <div class="stat stat-accent-blue">
+      <span class="stat-num">03</span>
       <span class="stat-label">Cumulative GPA</span>
       <span class="stat-value" id="statCGPA">&mdash;</span>
       <span class="stat-sub" id="statCGPASub">no graded courses</span>
     </div>
-    <div class="stat">
+    <div class="stat stat-accent-green">
+      <span class="stat-num">04</span>
       <span class="stat-label">Major GPA</span>
       <span class="stat-value" id="statMGPA">&mdash;</span>
       <span class="stat-sub" id="statMGPASub">no graded courses</span>
     </div>
     <div class="stat stat-flags">
+      <span class="stat-num">05</span>
       <span class="stat-label">Conflicts</span>
       <span class="stat-value" id="statIssues">0</span>
       <span class="stat-sub" id="statIssuesSub">nothing to review</span>
     </div>
-  </div>
+  </section>
 
+  <!-- ─────────────────────────────────────────── toolbar -->
   <div class="toolbar">
     <label class="field">
-      <span>Start term</span>
+      <span class="micro">Start term</span>
       <select id="startTerm">
         <option value="fall">Fall</option>
         <option value="spring">Spring</option>
@@ -60,97 +116,129 @@
       </select>
     </label>
     <label class="field">
-      <span>Start year</span>
+      <span class="micro">Start year</span>
       <input type="number" id="startYear" min="2000" max="2099" step="1">
     </label>
     <label class="field">
-      <span>Entry credits</span>
+      <span class="micro">Entry credits</span>
       <input type="number" id="entryCredits" min="0" max="90" step="1">
     </label>
     <span class="toolbar-gap"></span>
-    <button type="button" class="btn" id="btnAddTerm">Add term</button>
-    <button type="button" class="btn" id="btnExport">Export</button>
-    <button type="button" class="btn" id="btnImport">Import</button>
-    <button type="button" class="btn btn-quiet" id="btnReset">Reset to plan</button>
+    <button type="button" class="btn" id="btnAddTerm">Add term <i>+</i></button>
+    <button type="button" class="btn" id="btnExport">Export <i>&darr;</i></button>
+    <button type="button" class="btn" id="btnImport">Import <i>&uarr;</i></button>
+    <button type="button" class="btn btn-danger" id="btnReset">Reset <i>&#8635;</i></button>
     <input type="file" id="importFile" accept="application/json,.json" hidden>
   </div>
-</header>
 
-<main>
-  <section class="board" id="board" aria-label="Semesters"></section>
+  <main>
 
-  <section class="panel" id="bankPanel">
-    <div class="panel-head">
-      <h2>Unplaced courses</h2>
-      <p class="panel-note">Courses removed from the board. Drag one back into any term.</p>
-    </div>
-    <div class="bank" id="bank" data-semester="bank"></div>
-  </section>
-
-  <div class="columns">
-    <section class="panel" id="issuesPanel">
-      <div class="panel-head">
-        <h2>Conflicts</h2>
-        <p class="panel-note">Checked against the LAU catalog, not only the flow chart.</p>
+    <!-- ─────────────────────────────────────────── board -->
+    <section class="block" id="boardBlock">
+      <div class="block-head">
+        <span class="block-num num-red">01</span>
+        <h2>The board</h2>
+        <p class="block-note">Drag a course to another term. Lock a term once you have registered it.</p>
       </div>
-      <ul class="issues" id="issues"></ul>
+      <div class="board" id="board" aria-label="Semesters"></div>
     </section>
 
-    <section class="panel" id="reqPanel">
-      <div class="panel-head">
-        <h2>Requirements</h2>
-        <p class="panel-note">Liberal Arts and Sciences, Curriculum Z2026.</p>
+    <!-- ──────────────────────────────────────────── bank -->
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num num-blue">02</span>
+        <h2>Unplaced</h2>
+        <p class="block-note">Courses pulled off the board. Drag one back into any term.</p>
       </div>
-      <div id="requirements"></div>
+      <div class="bank" id="bank" data-semester="bank"></div>
     </section>
-  </div>
 
-  <section class="panel legend">
-    <div class="panel-head">
-      <h2>Index</h2>
-    </div>
-    <div class="legend-grid">
-      <div class="legend-block">
-        <h3>Course categories</h3>
-        <ul class="legend-list" id="legendCategories"></ul>
-      </div>
-      <div class="legend-block">
-        <h3>Course states</h3>
-        <ul class="legend-list">
-          <li><span class="swatch swatch-state state-done"></span>Completed, struck through</li>
-          <li><span class="swatch swatch-state state-fail"></span>Failed, counts toward repeat limit</li>
-          <li><span class="swatch swatch-state state-wd"></span>Withdrawn (WI, WP, WF)</li>
-          <li><span class="swatch swatch-state state-lock"></span>Registered term, locked</li>
-          <li><span class="swatch swatch-state state-flag"></span>Prerequisite or load conflict</li>
-        </ul>
-      </div>
-      <div class="legend-block">
-        <h3>Marks on a card</h3>
-        <ul class="legend-list">
-          <li><span class="mark">P</span>Has prerequisites</li>
-          <li><span class="mark">C</span>Has corequisites or must run concurrently</li>
-          <li><span class="mark">H</span>Prerequisite not drawn on the official flow chart</li>
-          <li><span class="mark">!</span>Overridden by you, checks suppressed</li>
-        </ul>
-      </div>
-      <div class="legend-block">
-        <h3>Credit limits</h3>
-        <ul class="legend-list plain">
-          <li>Fall and spring, 18 credits</li>
-          <li>Summer, 9 credits</li>
-          <li>21 with a cumulative GPA of 3.00 or above</li>
-          <li>13 while on academic probation</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+    <div class="split">
+      <!-- ───────────────────────────────────── conflicts -->
+      <section class="block">
+        <div class="block-head">
+          <span class="block-num num-red">03</span>
+          <h2>Conflicts</h2>
+          <p class="block-note">Checked against the LAU catalog, not only the flow chart.</p>
+        </div>
+        <ul class="issues" id="issues"></ul>
+      </section>
 
-  <p class="disclaimer">
-    Course data is transcribed from the official LAU Mechanical Engineering flow
-    chart and the 2026&ndash;2027 academic catalog. This is a planning aid, not an
-    official record. Confirm your schedule with your advisor and the Registrar.
-  </p>
-</main>
+      <!-- ────────────────────────────────── requirements -->
+      <section class="block">
+        <div class="block-head">
+          <span class="block-num num-green">04</span>
+          <h2>Requirements</h2>
+          <p class="block-note">Liberal Arts and Sciences, Curriculum Z2026.</p>
+        </div>
+        <div id="requirements"></div>
+      </section>
+    </div>
+
+    <!-- ────────────────────────────────────────── legend -->
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num num-yellow">05</span>
+        <h2>Index</h2>
+        <p class="block-note">What the colours, marks and states mean.</p>
+      </div>
+      <div class="legend-grid">
+        <div class="legend-block">
+          <h3>Course categories</h3>
+          <ul class="legend-list" id="legendCategories"></ul>
+        </div>
+        <div class="legend-block">
+          <h3>Course states</h3>
+          <ul class="legend-list">
+            <li><span class="swatch sw-done"></span>Completed, struck through</li>
+            <li><span class="swatch sw-fail"></span>Failed, counts toward the repeat limit</li>
+            <li><span class="swatch sw-wd"></span>Withdrawn (WI, WP, WF)</li>
+            <li><span class="swatch sw-lock"></span>Registered term, locked</li>
+            <li><span class="swatch sw-flag"></span>Prerequisite or load conflict</li>
+          </ul>
+        </div>
+        <div class="legend-block">
+          <h3>Marks on a card</h3>
+          <ul class="legend-list">
+            <li><span class="mark">P</span>Has prerequisites</li>
+            <li><span class="mark">C</span>Has corequisites or runs concurrently</li>
+            <li><span class="mark mark-h">H</span>Prerequisite the flow chart omits</li>
+            <li><span class="mark mark-x">!</span>Overridden by you, checks suppressed</li>
+          </ul>
+        </div>
+        <div class="legend-block">
+          <h3>Credit limits</h3>
+          <ul class="legend-list plain">
+            <li><b>18</b> Fall and spring</li>
+            <li><b>09</b> Summer</li>
+            <li><b>21</b> Cumulative GPA of 3.00 or above</li>
+            <li><b>13</b> While on academic probation</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ──────────────────────────────────────────── footer -->
+  <footer class="footer">
+    <div class="footer-shout">
+      Built<br>for<br>students.
+    </div>
+    <div class="footer-body">
+      <p class="footer-note">
+        Course data is transcribed from the official LAU Mechanical Engineering
+        flow chart and the 2026&ndash;2027 academic catalog. This is a planning
+        aid, not an official record. Confirm your schedule with your advisor and
+        the Registrar before you register.
+      </p>
+      <div class="footer-meta">
+        <span class="micro">Study plan</span>
+        <strong id="footerPlan">MEE &middot; Effective Fall 2026</strong>
+      </div>
+    </div>
+  </footer>
+
+</div>
 
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
