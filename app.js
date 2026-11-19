@@ -18,6 +18,11 @@
 
   function $(id) { return document.getElementById(id); }
 
+  function setText(id, value) {
+    var node = $(id);
+    if (node) node.textContent = value;
+  }
+
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -511,9 +516,16 @@
       if (cr > cap) row.classList.add('is-over');
 
       var rail = el('div', 'term-rail');
-      rail.appendChild(el('span', 'term-year', 'Year ' + meta.academicYear));
-      rail.appendChild(el('span', 'term-name', meta.label));
+      rail.appendChild(el('span', 'term-idx', (idx < 9 ? '0' : '') + (idx + 1)));
+      rail.appendChild(el('span', 'term-name', titleCase(meta.term)));
+      rail.appendChild(el('span', 'term-year', meta.year + ' · Year ' + meta.academicYear));
       rail.appendChild(el('span', 'term-credits', cr + ' / ' + cap + ' cr'));
+
+      var meter = el('div', 'term-meter');
+      var meterFill = el('span');
+      meterFill.style.width = Math.min(100, cap ? (cr / cap) * 100 : 0) + '%';
+      meter.appendChild(meterFill);
+      rail.appendChild(meter);
 
       var actions = el('div', 'term-actions');
       var lock = el('button', 'lock', t.locked ? 'Registered' : 'Lock');
@@ -588,7 +600,10 @@
     foot.appendChild(marks);
     card.appendChild(foot);
 
-    if (item.grade) card.appendChild(el('span', 'card-grade', item.grade));
+    if (item.grade) {
+      card.appendChild(el('span', 'card-grade', item.grade));
+      card.classList.add('has-grade');
+    }
 
     var bits = [eff.label, eff.title, eff.credits + ' credits'];
     flags.forEach(function (f) { bits.push(f.text); });
@@ -722,9 +737,14 @@
     body.textContent = '';
 
     body.appendChild(el('h3', null, eff.label));
+
+    var tag = el('span', 'cat-tag', plan.categories[eff.category].label);
+    tag.dataset.cat = eff.category;
+    body.appendChild(tag);
+
     body.appendChild(el('p', 'sheet-sub',
-      (eff.code ? eff.title + ' · ' : '') + eff.credits + ' credits · ' +
-      plan.categories[eff.category].label));
+      (eff.code ? eff.title + ' · ' : '') +
+      eff.credits + ' credit' + (eff.credits === 1 ? '' : 's')));
 
     if (eff.hiddenPrereq) {
       body.appendChild(el('div', 'sheet-note', eff.hiddenPrereq));
@@ -963,8 +983,6 @@
       var sw = el('span', 'swatch');
       sw.style.background = getComputedStyle(document.documentElement)
         .getPropertyValue('--cat-' + shortKey(key) + '-bg');
-      sw.style.borderLeft = '5px solid ' + getComputedStyle(document.documentElement)
-        .getPropertyValue('--cat-' + shortKey(key) + '-bar');
       li.appendChild(sw);
       li.appendChild(document.createTextNode(plan.categories[key].label));
       host.appendChild(li);
@@ -982,6 +1000,12 @@
     $('programName').textContent = plan.plan.program;
     $('effectiveLabel').textContent = 'Effective ' + plan.plan.effective;
     document.title = plan.plan.program + ' — LAU Course Map';
+
+    // Masthead figures come from the plan so another program drops straight in.
+    setText('heroCredits', plan.plan.requiredCredits);
+    setText('heroCourses', plan.courses.length);
+    setText('heroTerms', plan.template.length);
+    setText('footerPlan', plan.plan.program + ' · Effective ' + plan.plan.effective);
 
     $('startTerm').value = state.startTerm;
     $('startYear').value = state.startYear;
