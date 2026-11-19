@@ -26,10 +26,17 @@ Currently covers **Mechanical Engineering**, study plan effective Fall 2026.
   in and it is flagged, because it may not be taught that term.
 - **Grades and GPA.** Full LAU scale with quality points. Cumulative and major
   GPA, with only the latest attempt of a repeated course counted, as LAU does.
-- **Course states**: completed and struck through, failed, or withdrawn with
-  WI, WP and WF kept distinct since only WF counts as a repeat.
-- **Term locking** once you have actually registered. A locked term is
-  highlighted and refuses changes.
+- **Course states**: completed and struck through, failed, or withdrawn.
+  A withdrawal is greyed, struck through corner to corner and labelled in
+  words, since it changes what you still owe. WI, WP and WF stay distinct
+  because only WF counts as a repeat.
+- **Term status**: Plan, Registered, In progress or Complete. Registered and
+  Complete freeze the term against edits; In progress leaves it editable.
+  Each status colours the term rail, and finishing one is celebrated.
+- **Collapsible years.** Fold a whole academic year away once it is behind
+  you; the year band keeps showing its credits and how many terms are done.
+- **Drag to reorder**, inside a term as well as between terms. A ghost marks
+  where the card will land before you let go.
 - **Requirement tracking** for the LAS Z2026 categories, technical electives,
   the SDG restricted elective and the SOE signature requirement.
 - **SOE signature is counted in credits, not courses**, because VIP+ courses

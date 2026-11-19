@@ -10,6 +10,15 @@
   var TERM_ORDER = ['fall', 'spring', 'summer'];
   var TERM_OFFSET = { fall: 0, spring: 1, summer: 1 };
 
+  // A term moves through these. Frozen ones refuse edits; the board should
+  // not let you reshuffle something you have already registered or finished.
+  var TERM_STATUS = {
+    planned:    { label: 'Planned',    button: 'Plan',        frozen: false },
+    registered: { label: 'Registered', button: 'Registered',  frozen: true  },
+    active:     { label: 'In progress',button: 'In progress', frozen: false },
+    done:       { label: 'Complete',   button: 'Complete',    frozen: true  }
+  };
+
   var plan = (window.PLANS || {})[PLAN_ID];
   var state = null;
   var uidSeq = 0;
@@ -173,11 +182,12 @@
       startYear: new Date().getFullYear(),
       startTerm: 'fall',
       entryCredits: plan.entryCredits.default,
+      collapsedYears: [],
       terms: [],
       items: []
     };
     plan.template.forEach(function (row) {
-      var t = { id: uid(), locked: false };
+      var t = { id: uid(), status: 'planned' };
       s.terms.push(t);
       row.courses.forEach(function (ref) { s.items.push(blankItem(ref, t.id)); });
     });
@@ -194,6 +204,11 @@
       if (!s || !Array.isArray(s.terms) || !Array.isArray(s.items)) return freshState();
       s.items = addMissingCourses(
         s.items.filter(function (i) { return courseById[i.ref]; }));
+      if (!Array.isArray(s.collapsedYears)) s.collapsedYears = [];
+      s.terms.forEach(function (t) {              // boards saved before statuses
+        if (!t.status) t.status = t.locked ? 'registered' : 'planned';
+        delete t.locked;
+      });
       if (s.planVersion !== plan.plan.planVersion) {
         setTimeout(function () {
           toast('A newer study plan is available. Export your work, then use Reset to plan.');
@@ -209,6 +224,33 @@
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
     catch (e) { toast('Could not save. Browser storage may be full or blocked.'); }
   }
+
+  function statusOf(t) {
+    if (!t) return 'planned';
+    if (t.status && TERM_STATUS[t.status]) return t.status;
+    return t.locked ? 'registered' : 'planned';   // boards saved before statuses
+  }
+
+  function isFrozen(t) { return !!TERM_STATUS[statusOf(t)].frozen; }
+
+  function termById(termId) {
+    var i = termIndexOf(termId);
+    return i < 0 ? null : state.terms[i];
+  }
+
+  function isCollapsed(year) {
+    return (state.collapsedYears || []).indexOf(year) !== -1;
+  }
+
+  function toggleYear(year) {
+    state.collapsedYears = state.collapsedYears || [];
+    var at = state.collapsedYears.indexOf(year);
+    if (at === -1) state.collapsedYears.push(year);
+    else state.collapsedYears.splice(at, 1);
+    render();
+  }
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
   function termIndexOf(termId) {
     for (var i = 0; i < state.terms.length; i++) {
@@ -526,69 +568,127 @@
     var board = $('board');
     board.textContent = '';
 
+    // Terms group by academic year so a year can be folded away once it is
+    // behind you.
+    var groups = [];
     state.terms.forEach(function (t, idx) {
       var meta = termMeta(idx);
-      var cr = termCredits(t.id);
-      var cap = capFor(meta.term, analysis.cgpa.gpa, analysis.onProbation);
+      var g = groups[groups.length - 1];
+      if (!g || g.year !== meta.academicYear) {
+        g = { year: meta.academicYear, rows: [] };
+        groups.push(g);
+      }
+      g.rows.push({ term: t, idx: idx, meta: meta });
+    });
 
-      var row = el('div', 'term');
-      row.dataset.termId = t.id;
-      if (t.locked) row.classList.add('is-locked');
-      if (cr > cap) row.classList.add('is-over');
+    groups.forEach(function (g) {
+      board.appendChild(yearHead(g));
+      if (isCollapsed(g.year)) return;
+      g.rows.forEach(function (r) { board.appendChild(termRow(r.term, r.idx, r.meta)); });
+    });
+  }
 
-      var rail = el('div', 'term-rail');
-      rail.appendChild(el('span', 'term-idx', (idx < 9 ? '0' : '') + (idx + 1)));
-      rail.appendChild(el('span', 'term-name', titleCase(meta.term)));
-      rail.appendChild(el('span', 'term-year', meta.year + ' · Year ' + meta.academicYear));
-      rail.appendChild(el('span', 'term-credits', cr + ' / ' + cap + ' cr'));
+  function yearHead(g) {
+    var credits = 0, complete = 0;
+    g.rows.forEach(function (r) {
+      credits += termCredits(r.term.id);
+      if (statusOf(r.term) === 'done') complete += 1;
+    });
+    var collapsed = isCollapsed(g.year);
 
-      var meter = el('div', 'term-meter');
-      var meterFill = el('span');
-      meterFill.style.width = Math.min(100, cap ? (cr / cap) * 100 : 0) + '%';
-      meter.appendChild(meterFill);
-      rail.appendChild(meter);
+    var head = el('button', 'year-head');
+    head.type = 'button';
+    head.setAttribute('aria-expanded', String(!collapsed));
+    if (collapsed) head.classList.add('is-collapsed');
+    if (complete === g.rows.length) head.classList.add('is-done');
 
-      var actions = el('div', 'term-actions');
-      var lock = el('button', 'lock', t.locked ? 'Registered' : 'Lock');
-      lock.type = 'button';
-      lock.setAttribute('aria-pressed', String(!!t.locked));
-      lock.addEventListener('click', function () {
-        t.locked = !t.locked;
+    head.appendChild(el('span', 'year-caret', collapsed ? '+' : '\u2212'));
+    head.appendChild(el('span', 'year-name', 'Year ' + g.year));
+
+    var meta = el('span', 'year-meta');
+    meta.appendChild(el('b', null, credits + ' cr'));
+    meta.appendChild(document.createTextNode(
+      ' \u00b7 ' + g.rows.length + ' term' + (g.rows.length === 1 ? '' : 's')));
+    if (complete) {
+      meta.appendChild(document.createTextNode(' \u00b7 '));
+      meta.appendChild(el('b', 'year-done', complete + ' complete'));
+    }
+    head.appendChild(meta);
+    head.appendChild(el('span', 'year-toggle', collapsed ? 'Show' : 'Hide'));
+
+    head.addEventListener('click', function () { toggleYear(g.year); });
+    return head;
+  }
+
+  function termRow(t, idx, meta) {
+    var cr = termCredits(t.id);
+    var cap = capFor(meta.term, analysis.cgpa.gpa, analysis.onProbation);
+    var status = statusOf(t);
+    var frozen = isFrozen(t);
+
+    var row = el('div', 'term');
+    row.dataset.termId = t.id;
+    row.dataset.status = status;
+    if (cr > cap) row.classList.add('is-over');
+
+    var rail = el('div', 'term-rail');
+    rail.appendChild(el('span', 'term-idx', pad2(idx + 1)));
+    rail.appendChild(el('span', 'term-name', titleCase(meta.term)));
+    rail.appendChild(el('span', 'term-year', meta.year + ' \u00b7 Year ' + meta.academicYear));
+    rail.appendChild(el('span', 'term-credits', cr + ' / ' + cap + ' cr'));
+
+    var meter = el('div', 'term-meter');
+    var meterFill = el('span');
+    meterFill.style.width = Math.min(100, cap ? (cr / cap) * 100 : 0) + '%';
+    meter.appendChild(meterFill);
+    rail.appendChild(meter);
+
+    var ctrl = el('div', 'term-status');
+    ['registered', 'active', 'done'].forEach(function (key) {
+      var b = el('button', 'tbtn tbtn-' + key, TERM_STATUS[key].button);
+      b.type = 'button';
+      b.title = 'Mark this term ' + TERM_STATUS[key].label.toLowerCase();
+      b.setAttribute('aria-pressed', String(status === key));
+      if (status === key) b.classList.add('is-on');
+      b.addEventListener('click', function () {
+        var was = statusOf(t);
+        t.status = was === key ? 'planned' : key;
+        render();
+        if (t.status === 'done' && was !== 'done') celebrate(meta, cr);
+      });
+      ctrl.appendChild(b);
+    });
+    rail.appendChild(ctrl);
+
+    if (itemsIn(t.id).length === 0 && state.terms.length > 1) {
+      var del = el('button', 'term-del', 'Remove term');
+      del.type = 'button';
+      del.addEventListener('click', function () {
+        state.terms.splice(idx, 1);
         render();
       });
-      actions.appendChild(lock);
+      rail.appendChild(del);
+    }
+    row.appendChild(rail);
 
-      if (itemsIn(t.id).length === 0 && state.terms.length > 1) {
-        var del = el('button', 'term-del', 'Remove');
-        del.type = 'button';
-        del.addEventListener('click', function () {
-          state.terms.splice(idx, 1);
-          render();
-        });
-        actions.appendChild(del);
-      }
-      rail.appendChild(actions);
-      row.appendChild(rail);
+    var slots = el('div', 'slots');
+    slots.dataset.termId = t.id;
+    itemsIn(t.id).forEach(function (item) { slots.appendChild(cardFor(item, frozen)); });
+    attachDrop(slots, t.id, frozen);
+    row.appendChild(slots);
 
-      var slots = el('div', 'slots');
-      slots.dataset.termId = t.id;
-      itemsIn(t.id).forEach(function (item) { slots.appendChild(cardFor(item, t.locked)); });
-      attachDrop(slots, t.id, t.locked);
-      row.appendChild(slots);
-
-      board.appendChild(row);
-    });
+    return row;
   }
 
   function renderBank() {
     var bank = $('bank');
     bank.textContent = '';
     state.items.filter(function (i) { return i.termId == null; })
-      .forEach(function (item) { bank.appendChild(cardFor(item)); });
+      .forEach(function (item) { bank.appendChild(cardFor(item, false)); });
     attachDrop(bank, null, false);
   }
 
-  function cardFor(item, locked) {
+  function cardFor(item, frozen) {
     var eff = effective(item);
     var flags = analysis.byItem[item.uid] || [];
     var hasError = flags.some(function (f) { return f.severity === 'error'; });
@@ -598,8 +698,8 @@
     card.type = 'button';
     card.dataset.uid = item.uid;
     card.dataset.cat = eff.category;
-    card.draggable = !locked;
-    if (locked) card.classList.add('is-pinned');
+    card.draggable = !frozen;
+    if (frozen) card.classList.add('is-pinned');
 
     if (isPassed(item)) card.classList.add('is-done');
     if (isFailed(item)) card.classList.add('is-failed');
@@ -626,39 +726,183 @@
       card.classList.add('has-grade');
     }
 
+    // A withdrawal is easy to miss as a tint, and it changes what you still
+    // owe, so it gets said in words.
+    if (isWithdrawn(item)) {
+      var g = gradeByLetter[item.grade];
+      card.appendChild(el('span', 'card-ribbon',
+        'Withdrawn \u00b7 ' + ((g && g.label) || item.grade)));
+    }
+
     var bits = [eff.label, eff.title, eff.credits + ' credits'];
     flags.forEach(function (f) { bits.push(f.text); });
-    card.title = bits.join(' — ');
+    card.title = bits.join(' \u2014 ');
 
-    card.addEventListener('click', function () { openSheet(item.uid); });
+    card.addEventListener('click', function () {
+      if (!dragging) openSheet(item.uid);
+    });
     card.addEventListener('dragstart', function (ev) {
-      var t = state.terms[termIndexOf(item.termId)];
-      if (t && t.locked) { ev.preventDefault(); toast('That term is locked.'); return; }
+      if (frozen) {
+        ev.preventDefault();
+        return;
+      }
+      dragging = item.uid;
       ev.dataTransfer.setData('text/plain', item.uid);
       ev.dataTransfer.effectAllowed = 'move';
       card.classList.add('dragging');
+      document.body.classList.add('is-dragging');
     });
-    card.addEventListener('dragend', function () { card.classList.remove('dragging'); });
+    card.addEventListener('dragend', function () {
+      card.classList.remove('dragging');
+      document.body.classList.remove('is-dragging');
+      clearGhost();
+      setTimeout(function () { dragging = null; }, 0);
+    });
 
     return card;
   }
 
-  function attachDrop(node, termId, locked) {
-    node.addEventListener('dragover', function (ev) {
-      ev.preventDefault();
-      ev.dataTransfer.dropEffect = locked ? 'none' : 'move';
-      if (!locked) node.classList.add('drag-over');
+  /* ----------------------------------------------------------- drag and drop
+
+     The ghost is a real element parked in the grid where the card would land,
+     so the layout shows the result before the drop rather than after it. It is
+     also what makes reordering inside one term work: the drop target is a
+     position, not a container. */
+
+  var dragging = null;
+  var ghostEl = null;
+
+  function ghost() {
+    if (!ghostEl) ghostEl = el('div', 'drop-ghost');
+    return ghostEl;
+  }
+
+  function clearGhost() {
+    if (ghostEl && ghostEl.parentNode) ghostEl.parentNode.removeChild(ghostEl);
+    [].forEach.call(document.querySelectorAll('.drag-over'), function (n) {
+      n.classList.remove('drag-over');
     });
-    node.addEventListener('dragleave', function () { node.classList.remove('drag-over'); });
+  }
+
+  // Nearest card to the pointer picks the slot; which side of its centre the
+  // pointer is on picks before or after.
+  function placeGhost(node, x, y) {
+    var g = ghost();
+    if (g.parentNode) g.parentNode.removeChild(g);
+
+    var cards = [].filter.call(node.querySelectorAll('.card'), function (c) {
+      return !c.classList.contains('dragging');
+    });
+    if (!cards.length) { node.appendChild(g); return; }
+
+    var best = null, bestDist = Infinity;
+    cards.forEach(function (c) {
+      var r = c.getBoundingClientRect();
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height / 2;
+      var d = Math.abs(y - cy) * 2 + Math.abs(x - cx);   // same row wins first
+      if (d < bestDist) { bestDist = d; best = { el: c, after: x > cx }; }
+    });
+
+    if (best.after) node.insertBefore(g, best.el.nextSibling);
+    else node.insertBefore(g, best.el);
+  }
+
+  // Move an item into a term, landing just before beforeUid when one is given.
+  function placeItem(item, termId, beforeUid) {
+    var from = state.items.indexOf(item);
+    if (from > -1) state.items.splice(from, 1);
+    item.termId = termId;
+
+    if (beforeUid) {
+      for (var i = 0; i < state.items.length; i++) {
+        if (state.items[i].uid === beforeUid) { state.items.splice(i, 0, item); return; }
+      }
+    }
+    var last = -1;
+    state.items.forEach(function (it, n) { if (it.termId === termId) last = n; });
+    state.items.splice(last + 1, 0, item);
+  }
+
+  function attachDrop(node, termId, frozen) {
+    node.addEventListener('dragover', function (ev) {
+      if (!dragging) return;
+      ev.preventDefault();
+      if (frozen) { ev.dataTransfer.dropEffect = 'none'; return; }
+      ev.dataTransfer.dropEffect = 'move';
+      node.classList.add('drag-over');
+      placeGhost(node, ev.clientX, ev.clientY);
+    });
+
+    node.addEventListener('dragleave', function (ev) {
+      // without this the highlight strobes on every child boundary
+      if (ev.relatedTarget && node.contains(ev.relatedTarget)) return;
+      node.classList.remove('drag-over');
+    });
+
     node.addEventListener('drop', function (ev) {
       ev.preventDefault();
-      node.classList.remove('drag-over');
-      if (locked) { toast('That term is locked. Unlock it to make changes.'); return; }
-      var item = findItem(ev.dataTransfer.getData('text/plain'));
-      if (!item || item.termId === termId) return;
-      item.termId = termId;
+      if (frozen) {
+        clearGhost();
+        toast('That term is ' + TERM_STATUS[statusOf(termById(termId))].label.toLowerCase() +
+              '. Set it back to Plan to make changes.');
+        return;
+      }
+      var item = findItem(ev.dataTransfer.getData('text/plain') || dragging);
+      if (!item) { clearGhost(); return; }
+
+      var g = ghost();
+      var next = g.parentNode ? g.nextElementSibling : null;
+      var beforeUid = next && next.classList.contains('card') ? next.dataset.uid : null;
+      clearGhost();
+
+      placeItem(item, termId, beforeUid);
       render();
     });
+  }
+
+  /* ------------------------------------------------------------ celebration */
+
+  function celebrate(meta, credits) {
+    var reduced = window.matchMedia &&
+                  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // marking two terms done in quick succession should not stack overlays
+    [].forEach.call(document.querySelectorAll('.cheer'), function (n) {
+      if (n.parentNode) n.parentNode.removeChild(n);
+    });
+
+    var done = state.terms.filter(function (t) { return statusOf(t) === 'done'; }).length;
+    var wrap = el('div', 'cheer');
+
+    var panel = el('div', 'cheer-panel');
+    panel.appendChild(el('span', 'cheer-kicker', 'Term complete'));
+    panel.appendChild(el('strong', 'cheer-term', meta.label));
+    panel.appendChild(el('span', 'cheer-line',
+      credits + ' credits banked \u00b7 ' + done +
+      ' term' + (done === 1 ? '' : 's') + ' done'));
+    wrap.appendChild(panel);
+
+    if (!reduced) {
+      var colours = ['#ff3b21', '#ffe400', '#2b44ff', '#00d563', '#0c0c0c'];
+      for (var i = 0; i < 42; i++) {
+        var bit = el('i', 'cheer-bit');
+        bit.style.left = (Math.random() * 100).toFixed(1) + '%';
+        bit.style.background = colours[i % colours.length];
+        bit.style.animationDelay = (Math.random() * 0.35).toFixed(2) + 's';
+        bit.style.animationDuration = (1.1 + Math.random() * 0.9).toFixed(2) + 's';
+        bit.style.width = (6 + Math.round(Math.random() * 8)) + 'px';
+        wrap.appendChild(bit);
+      }
+    }
+
+    document.body.appendChild(wrap);
+    setTimeout(function () {
+      wrap.classList.add('is-out');
+      setTimeout(function () {
+        if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      }, 400);
+    }, reduced ? 1300 : 2300);
   }
 
   function renderIssues() {
@@ -861,7 +1105,8 @@
     state.terms.forEach(function (t, i) {
       var o = document.createElement('option');
       o.value = t.id;
-      o.textContent = termMeta(i).label + (t.locked ? ' (locked)' : '');
+      o.textContent = termMeta(i).label +
+        (isFrozen(t) ? ' (' + TERM_STATUS[statusOf(t)].label.toLowerCase() + ')' : '');
       sel.appendChild(o);
     });
     sel.value = item.termId || '';
