@@ -23,7 +23,9 @@ Currently covers **Mechanical Engineering**, study plan effective Fall 2026.
   your cumulative GPA reaches 3.00, 13 while on probation. The cap shown on
   each term updates as your GPA changes.
 - **Offering warnings.** Move a course out of the term the study plan puts it
-  in and it is flagged, because it may not be taught that term.
+  in and the card is marked, because it may not be taught that term. The
+  reason shows in the course's detail panel. These stay off the Conflicts
+  list, which is kept for things that would actually block a registration.
 - **Grades and GPA.** Full LAU scale with quality points. Cumulative and major
   GPA, with only the latest attempt of a repeated course counted, as LAU does.
 - **Course states**: completed and struck through, failed, or withdrawn.
