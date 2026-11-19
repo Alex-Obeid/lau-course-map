@@ -1022,10 +1022,16 @@
     }, reduced ? 1300 : 2300);
   }
 
+  // Offering warnings are better placed on the card that caused them, where
+  // you are already looking, than as rows filling this list.
+  var ISSUES_NOT_LISTED = ['offering'];
+
   function renderIssues() {
     var list = $('issues');
     list.textContent = '';
-    var sorted = analysis.issues.slice().sort(function (a, b) {
+    var sorted = analysis.issues.filter(function (i) {
+      return ISSUES_NOT_LISTED.indexOf(i.kind) === -1;
+    }).sort(function (a, b) {
       if (a.severity === b.severity) return 0;
       return a.severity === 'error' ? -1 : 1;
     });
