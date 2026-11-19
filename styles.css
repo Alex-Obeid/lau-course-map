@@ -1044,6 +1044,9 @@ b, strong { font-weight: 800; }
   .statbar { grid-template-columns: repeat(3, 1fr); }
   .stat:nth-child(4) { border-left: 0; }
   .stat:nth-child(n+4) { border-top: var(--rule) solid var(--ink); }
+  /* five cells into an even grid: the last one takes the slack rather than
+     leaving a hole in the row */
+  .stat:nth-child(5) { grid-column: span 2; }
   .legend-grid { grid-template-columns: repeat(2, 1fr); }
   .legend-block:nth-child(3) { border-left: 0; }
   .legend-block:nth-child(n+3) { border-top: var(--rule-sm) solid var(--ink); }
