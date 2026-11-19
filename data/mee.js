@@ -113,7 +113,8 @@ window.PLANS['lau-mee-2026f'] = {
     "MTH102": { "title": "Calculus II", "credits": 3, "freshman": true },
     "PHY111": { "title": "Mechanics", "credits": 3, "freshman": true },
     "CIE320": { "title": "Fluid Mechanics (Civil)", "credits": 3, "freshman": false },
-    "ELE401": { "title": "Electronics I", "credits": 3, "freshman": false }
+    "ELE401": { "title": "Electronics I", "credits": 3, "freshman": false },
+    "INE212": { "title": "Computer Applications in INE", "credits": 2, "freshman": false }
   },
 
   "courses": [
@@ -250,7 +251,15 @@ window.PLANS['lau-mee-2026f'] = {
         { "code": "MEE570", "title": "CFD for Wind Energy Engineering", "credits": 3, "prereqs": [["MEE311"]], "standing": "fifth-year" },
         { "code": "MEE590", "title": "Energy Audit", "credits": 3, "prereqs": [["MEE403"]] },
         { "code": "MEE594", "title": "Undergraduate Research Project", "credits": 3, "prereqs": [], "standing": "fifth-year", "requiresConsent": true },
-        { "code": "MEE599", "title": "Topics in Mechanical Engineering", "credits": 3, "prereqs": [], "standing": "fifth-year" }
+        { "code": "MEE599", "title": "Topics in Mechanical Engineering", "credits": 3, "prereqs": [], "standing": "fifth-year" },
+        { "code": "MEE599AN", "title": "Tp: Industrial Automation Systems", "credits": 3, "prereqs": [], "standing": "fifth-year" },
+        { "code": "MEE599AO", "title": "Green Engineering", "credits": 3, "prereqs": [], "standing": "fifth-year" },
+        { "code": "MEE599AP", "title": "Aerospace Processes, Materials and Applications", "credits": 3, "prereqs": [], "standing": "fifth-year" },
+        { "code": "MEE599AQ", "title": "Race Car Fundamentals", "credits": 3, "prereqs": [], "standing": "fifth-year" },
+        { "code": "MEE599AS", "title": "Machine Learning for Industrial and Mechanical Engineering", "credits": 3,
+          "prereqs": [["GNE333"], ["COE212"], ["MEE212", "INE212"]], "standing": "fifth-year" },
+        { "code": "MEE599AT", "title": "Deep Learning for Industrial and Mechanical Engineering", "credits": 3,
+          "prereqs": [["GNE333"], ["COE212"], ["MEE212", "INE212"]], "standing": "fifth-year" }
       ]
     },
     "restricted": { "label": "SDG Restricted Elective", "pick": 1, "freeText": true, "options": [] },
