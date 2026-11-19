@@ -31,77 +31,57 @@
     </div>
   </header>
 
-  <!-- ────────────────────────────────────────────── hero -->
-  <section class="hero">
-    <div class="hero-type">
-      <h1>PLAN<br>EVERY<br>TERM.</h1>
-      <p class="hero-lede">
-        Drag courses between semesters. Prerequisites, corequisites, class
-        standing and credit limits are checked against the LAU catalog as you
-        move &mdash; including the ones the official flow chart never draws.
-      </p>
-      <div class="hero-marks">
-        <span class="chip chip-red">Prerequisites</span>
-        <span class="chip chip-blue">GPA</span>
-        <span class="chip chip-green">Credit limits</span>
-        <span class="chip chip-yellow">LAS tracking</span>
-      </div>
-    </div>
-    <div class="hero-side">
-      <div class="hero-block hero-block-red">
-        <span class="hero-block-num" id="heroCredits">&mdash;</span>
-        <span class="hero-block-label">Credits in the plan</span>
-      </div>
-      <div class="hero-block hero-block-ink">
-        <span class="hero-block-num" id="heroCourses">&mdash;</span>
-        <span class="hero-block-label">Courses mapped</span>
-      </div>
-      <div class="hero-block hero-block-yellow">
-        <span class="hero-block-num" id="heroTerms">&mdash;</span>
-        <span class="hero-block-label">Terms in the plan</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ───────────────────────────────────────────── strip -->
-  <div class="strip">
-    <span class="strip-year">(2026)</span>
-    <span class="strip-text">Plan it. Check it. Then register with no surprises.</span>
-    <span class="strip-arrow" aria-hidden="true">&rarr;</span>
-    <span class="strip-flag">Saved in this browser</span>
-  </div>
-
   <!-- ───────────────────────────────────────────── stats -->
   <section class="statbar" id="statbar">
     <div class="stat">
-      <span class="stat-num">01</span>
-      <span class="stat-label">Credits earned</span>
-      <span class="stat-value" id="statEarned">0</span>
-      <span class="stat-sub" id="statEarnedSub">of 150</span>
+      <div class="stat-banner">
+        <span class="stat-num">01</span>
+        <span class="stat-label">Credits earned</span>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value" id="statEarned">0</span>
+        <span class="stat-sub" id="statEarnedSub">of 150</span>
+      </div>
     </div>
     <div class="stat">
-      <span class="stat-num">02</span>
-      <span class="stat-label">Credits planned</span>
-      <span class="stat-value" id="statPlanned">0</span>
-      <span class="stat-sub" id="statPlannedSub">incl. freshman</span>
+      <div class="stat-banner">
+        <span class="stat-num">02</span>
+        <span class="stat-label">Credits planned</span>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value" id="statPlanned">0</span>
+        <span class="stat-sub" id="statPlannedSub">incl. freshman</span>
+      </div>
     </div>
-    <div class="stat stat-accent-blue">
-      <span class="stat-num">03</span>
-      <span class="stat-label">Cumulative GPA</span>
-      <span class="stat-value" id="statCGPA">&mdash;</span>
-      <span class="stat-sub" id="statCGPASub">no graded courses</span>
+    <div class="stat">
+      <div class="stat-banner">
+        <span class="stat-num">03</span>
+        <span class="stat-label">Cumulative GPA</span>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value" id="statCGPA">&mdash;</span>
+        <span class="stat-sub" id="statCGPASub">no graded courses</span>
+      </div>
     </div>
-    <div class="stat stat-accent-green">
-      <span class="stat-num">04</span>
-      <span class="stat-label">Major GPA</span>
-      <span class="stat-value" id="statMGPA">&mdash;</span>
-      <span class="stat-sub" id="statMGPASub">no graded courses</span>
+    <div class="stat">
+      <div class="stat-banner">
+        <span class="stat-num">04</span>
+        <span class="stat-label">Major GPA</span>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value" id="statMGPA">&mdash;</span>
+        <span class="stat-sub" id="statMGPASub">no graded courses</span>
+      </div>
     </div>
     <div class="stat stat-flags">
-      <span class="stat-num">05</span>
-      <span class="stat-label">Conflicts</span>
-      <span class="stat-value" id="statIssues">0</span>
-      <span class="stat-sub" id="statIssuesSub">nothing to review</span>
+      <div class="stat-banner">
+        <span class="stat-num">05</span>
+        <span class="stat-label">Conflicts</span>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value" id="statIssues">0</span>
+        <span class="stat-sub" id="statIssuesSub">nothing to review</span>
+      </div>
     </div>
   </section>
 
@@ -148,7 +128,7 @@
       <div class="block-head">
         <span class="block-num num-blue">02</span>
         <h2>Unplaced</h2>
-        <p class="block-note">Courses pulled off the board. Drag one back into any term.</p>
+        <p class="block-note">Courses pulled off the board, and anything the plan does not schedule. Drag one into a term.</p>
       </div>
       <div class="bank" id="bank" data-semester="bank"></div>
     </section>
