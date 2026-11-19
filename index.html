@@ -12,24 +12,29 @@
 </head>
 <body>
 
-<div class="shell">
+<!-- ───────────────────────────────────────────────────────────── masthead -->
+<header class="masthead">
+  <p class="masthead-note">
+    <span class="ast">*</span><span id="effectiveLabel">Effective Fall 2026</span>
+  </p>
 
-  <!-- ─────────────────────────────────────────────── nav -->
-  <header class="nav">
-    <a class="nav-brand" href="#board">COURSE<br>MAP.</a>
-    <div class="nav-cell">
+  <svg class="wordmark" viewBox="0 0 1200 152" role="img" aria-label="Course Map">
+    <text x="0" y="124" textLength="1200" lengthAdjust="spacingAndGlyphs">COURSEMAP.</text>
+  </svg>
+
+  <div class="masthead-meta">
+    <div class="meta-cell">
       <span class="micro">Program</span>
       <strong id="programName">Mechanical Engineering</strong>
     </div>
-    <div class="nav-cell">
-      <span class="micro">Study plan</span>
-      <strong id="effectiveLabel">Effective Fall 2026</strong>
-    </div>
-    <div class="nav-cell nav-cell-flag">
+    <div class="meta-cell">
       <span class="micro">Institution</span>
       <strong>LAU &middot; School of Engineering</strong>
     </div>
-  </header>
+  </div>
+</header>
+
+<div class="shell">
 
   <!-- ───────────────────────────────────────────── stats -->
   <section class="statbar" id="statbar">
@@ -40,22 +45,12 @@
       </div>
       <div class="stat-body">
         <span class="stat-value" id="statEarned">0</span>
-        <span class="stat-sub" id="statEarnedSub">of 150</span>
+        <span class="stat-sub" id="statEarnedSub">of 180</span>
       </div>
     </div>
     <div class="stat">
       <div class="stat-banner">
         <span class="stat-num">02</span>
-        <span class="stat-label">Credits planned</span>
-      </div>
-      <div class="stat-body">
-        <span class="stat-value" id="statPlanned">0</span>
-        <span class="stat-sub" id="statPlannedSub">incl. freshman</span>
-      </div>
-    </div>
-    <div class="stat">
-      <div class="stat-banner">
-        <span class="stat-num">03</span>
         <span class="stat-label">Cumulative GPA</span>
       </div>
       <div class="stat-body">
@@ -65,22 +60,12 @@
     </div>
     <div class="stat">
       <div class="stat-banner">
-        <span class="stat-num">04</span>
+        <span class="stat-num">03</span>
         <span class="stat-label">Major GPA</span>
       </div>
       <div class="stat-body">
         <span class="stat-value" id="statMGPA">&mdash;</span>
         <span class="stat-sub" id="statMGPASub">no graded courses</span>
-      </div>
-    </div>
-    <div class="stat stat-flags">
-      <div class="stat-banner">
-        <span class="stat-num">05</span>
-        <span class="stat-label">Conflicts</span>
-      </div>
-      <div class="stat-body">
-        <span class="stat-value" id="statIssues">0</span>
-        <span class="stat-sub" id="statIssuesSub">nothing to review</span>
       </div>
     </div>
   </section>
@@ -118,26 +103,16 @@
       <div class="block-head">
         <span class="block-num num-red">01</span>
         <h2>The board</h2>
-        <p class="block-note">Drag a course to another term. Lock a term once you have registered it.</p>
+        <p class="block-note">Drag a course to another term, or reorder inside one. Mark a term registered, in progress or complete.</p>
       </div>
       <div class="board" id="board" aria-label="Semesters"></div>
-    </section>
-
-    <!-- ──────────────────────────────────────────── bank -->
-    <section class="block">
-      <div class="block-head">
-        <span class="block-num num-blue">02</span>
-        <h2>Unplaced</h2>
-        <p class="block-note">Courses pulled off the board, and anything the plan does not schedule. Drag one into a term.</p>
-      </div>
-      <div class="bank" id="bank" data-semester="bank"></div>
     </section>
 
     <div class="split">
       <!-- ───────────────────────────────────── conflicts -->
       <section class="block">
         <div class="block-head">
-          <span class="block-num num-red">03</span>
+          <span class="block-num num-blue">02</span>
           <h2>Conflicts</h2>
           <p class="block-note">Checked against the LAU catalog, not only the flow chart.</p>
         </div>
@@ -147,9 +122,9 @@
       <!-- ────────────────────────────────── requirements -->
       <section class="block">
         <div class="block-head">
-          <span class="block-num num-green">04</span>
+          <span class="block-num num-green">03</span>
           <h2>Requirements</h2>
-          <p class="block-note">Liberal Arts and Sciences, Curriculum Z2026.</p>
+          <p class="block-note">Grouped the way the CAPP degree evaluation groups them.</p>
         </div>
         <div id="requirements"></div>
       </section>
@@ -158,13 +133,13 @@
     <!-- ────────────────────────────────────────── legend -->
     <section class="block">
       <div class="block-head">
-        <span class="block-num num-yellow">05</span>
+        <span class="block-num num-yellow">04</span>
         <h2>Index</h2>
         <p class="block-note">What the colours, marks and states mean.</p>
       </div>
       <div class="legend-grid">
         <div class="legend-block">
-          <h3>Course categories</h3>
+          <h3>Requirement areas</h3>
           <ul class="legend-list" id="legendCategories"></ul>
         </div>
         <div class="legend-block">
@@ -219,6 +194,24 @@
   </footer>
 
 </div>
+
+<!-- ──────────────────────────────────────────────────────────── side tray -->
+<button type="button" class="tray-toggle" id="trayToggle" aria-expanded="false" aria-controls="tray">
+  <span>Unplaced</span><b id="trayCount">0</b>
+</button>
+
+<div class="tray-scrim" id="trayScrim" hidden></div>
+
+<aside class="tray" id="tray" aria-label="Unplaced courses">
+  <div class="tray-head">
+    <div>
+      <span class="micro">Drag onto the board</span>
+      <strong>Unplaced</strong>
+    </div>
+    <button type="button" class="tray-close" id="trayClose" aria-label="Close tray">&times;</button>
+  </div>
+  <div class="bank" id="bank" data-semester="bank"></div>
+</aside>
 
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
