@@ -346,7 +346,9 @@ b, strong { font-weight: 800; }
 
 /* ─────────────────────────────────────────────────────────────── board */
 
-.board { border-top: var(--rule) solid var(--ink); }
+.board-wrap { display: grid; grid-template-columns: 1fr 274px; }
+
+.board { border-top: var(--rule) solid var(--ink); min-width: 0; }
 
 .year-head {
   display: flex;
@@ -829,6 +831,31 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
   gap: 12px;
 }
 
+.req-label { display: flex; align-items: center; gap: 9px; min-width: 0; }
+
+.req-swatch {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  border: var(--rule-sm) solid var(--ink);
+  background: var(--paper);
+}
+
+.req[data-cat="mee-major"]     .req-swatch,
+.req[data-cat="mee-major"]     .req-bar span { background: var(--cat-mee-major); }
+.req[data-cat="tech-elective"] .req-swatch,
+.req[data-cat="tech-elective"] .req-bar span { background: var(--cat-tech-elective); }
+.req[data-cat="math-sci"]      .req-swatch,
+.req[data-cat="math-sci"]      .req-bar span { background: var(--cat-math-sci); }
+.req[data-cat="gen-eng"]       .req-swatch,
+.req[data-cat="gen-eng"]       .req-bar span { background: var(--cat-gen-eng); }
+.req[data-cat="las-core"]      .req-swatch,
+.req[data-cat="las-core"]      .req-bar span { background: var(--cat-las-core); }
+.req[data-cat="las-elective"]  .req-swatch,
+.req[data-cat="las-elective"]  .req-bar span { background: var(--cat-las-elective); }
+.req[data-cat="basic-eng"]     .req-swatch,
+.req[data-cat="basic-eng"]     .req-bar span { background: var(--cat-basic-eng); }
+
 .req-name {
   font-size: 12.5px;
   font-weight: 800;
@@ -851,9 +878,9 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 
 .req-bar span { display: block; height: 100%; background: var(--ink); }
 
-.req.is-met .req-bar span   { background: var(--green); }
 .req.is-over .req-bar span  { background: var(--red); }
 .req.is-over .req-count     { color: var(--red); }
+.req.is-met .req-count::after { content: " ¹3"; font-weight: 900; }
 
 .req-detail {
   margin: 6px 0 0;
@@ -1111,21 +1138,18 @@ body.is-dragging .card:not(.dragging):hover { transform: none; box-shadow: 4px 4
 /* ───────────────────────────────────────────────────────────────── tray */
 
 .tray {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(304px, 86vw);
-  z-index: 45;
-  display: flex;
-  flex-direction: column;
-  background: var(--paper);
+  border-top: var(--rule) solid var(--ink);
   border-left: var(--rule) solid var(--ink);
-  transform: translateX(101%);
-  transition: transform .22s ease;
+  background: var(--wash);
 }
 
-body.tray-open .tray { transform: none; }
+.tray-inner {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+}
 
 .tray-head {
   display: flex;
@@ -1166,18 +1190,19 @@ body.tray-open .tray { transform: none; }
   flex: 1;
   overflow-y: auto;
   margin: 0;
+  padding: 12px;
   border: 0;
-  border-radius: 0;
   background: var(--wash);
   align-content: start;
+  grid-template-columns: 1fr;
 }
 
 .tray-toggle {
+  display: none;            /* only the drawer breakpoint turns it on */
   position: fixed;
   right: 0;
   bottom: 26px;
   z-index: 46;
-  display: flex;
   align-items: center;
   gap: 9px;
   padding: 11px 15px;
@@ -1203,19 +1228,38 @@ body.tray-open .tray { transform: none; }
 }
 
 .tray-toggle:hover { background: var(--red); }
-body.tray-open .tray-toggle { display: none; }
 
-.tray-scrim {
-  position: fixed;
-  inset: 0;
-  z-index: 44;
-  background: rgba(12, 12, 12, .45);
-}
+.tray-scrim { display: none; }
 
-@media (min-width: 1280px) {
-  /* on a wide screen the tray sits beside the board instead of over it */
-  body.tray-open { padding-right: calc(304px + 28px); }
-  .tray-scrim { display: none; }
+@media (max-width: 1079px) {
+  /* no room beside the board, so it becomes a drawer over it */
+  .board-wrap { grid-template-columns: 1fr; }
+
+  .tray {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(304px, 86vw);
+    z-index: 45;
+    border-top: 0;
+    background: var(--paper);
+    transform: translateX(101%);
+    transition: transform .22s ease;
+  }
+
+  body.tray-open .tray { transform: none; }
+  .tray-inner { height: 100%; max-height: 100%; }
+  .tray-toggle { display: flex; }
+  body.tray-open .tray-toggle { display: none; }
+
+  .tray-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 44;
+    background: rgba(12, 12, 12, .45);
+  }
 }
 
 /* ─────────────────────────────────────────────────────────── finale */

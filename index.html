@@ -105,7 +105,22 @@
         <h2>The board</h2>
         <p class="block-note">Drag a course to another term, or reorder inside one. Mark a term registered, in progress or complete.</p>
       </div>
-      <div class="board" id="board" aria-label="Semesters"></div>
+      <div class="board-wrap">
+        <div class="board" id="board" aria-label="Semesters"></div>
+
+        <aside class="tray" id="tray" aria-label="Unplaced courses">
+          <div class="tray-inner">
+            <div class="tray-head">
+              <div>
+                <span class="micro">Drag onto the board</span>
+                <strong>Unplaced</strong>
+              </div>
+              <button type="button" class="tray-close" id="trayClose" aria-label="Close tray">&times;</button>
+            </div>
+            <div class="bank" id="bank" data-semester="bank"></div>
+          </div>
+        </aside>
+      </div>
     </section>
 
     <div class="split">
@@ -201,17 +216,6 @@
 </button>
 
 <div class="tray-scrim" id="trayScrim" hidden></div>
-
-<aside class="tray" id="tray" aria-label="Unplaced courses">
-  <div class="tray-head">
-    <div>
-      <span class="micro">Drag onto the board</span>
-      <strong>Unplaced</strong>
-    </div>
-    <button type="button" class="tray-close" id="trayClose" aria-label="Close tray">&times;</button>
-  </div>
-  <div class="bank" id="bank" data-semester="bank"></div>
-</aside>
 
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">

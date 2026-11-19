@@ -39,9 +39,11 @@ Currently covers **Mechanical Engineering**, study plan effective Fall 2026.
   you; the year band keeps showing its credits and how many terms are done.
 - **Drag to reorder**, inside a term as well as between terms. A ghost marks
   where the card will land before you let go.
-- **A side tray** holds unplaced courses, open beside the board on a wide
-  screen so you can drag straight onto a term. Below 1280px it becomes a
-  drawer that slides in from the right.
+- **A side tray** holds unplaced courses in a column beside the board, so you
+  can drag straight onto a term. Below 1080px it becomes a drawer that slides
+  in from the right.
+- **Requirement rows are colour-coded** to the area they belong to, matching
+  the cards and the index.
 - **Finish the degree** and the page says so properly.
 - **Requirement tracking** by CAPP area, plus the LAS Z2026 categories,
   technical electives, the SDG restricted elective and the SOE signature.
