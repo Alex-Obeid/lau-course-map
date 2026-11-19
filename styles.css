@@ -158,7 +158,7 @@ b, strong { font-weight: 800; }
   text-transform: uppercase;
 }
 
-.chip-red    { background: var(--red);    color: #fff; }
+.chip-red    { background: var(--red);    color: var(--ink); }
 .chip-blue   { background: var(--blue);   color: #fff; }
 .chip-green  { background: var(--green);  color: var(--ink); }
 .chip-yellow { background: var(--yellow); color: var(--ink); }
@@ -199,7 +199,7 @@ b, strong { font-weight: 800; }
   text-transform: uppercase;
 }
 
-.hero-block-red    { background: var(--red);    color: #fff; }
+.hero-block-red    { background: var(--red);    color: var(--ink); }
 .hero-block-ink    { background: var(--ink);    color: var(--paper); }
 .hero-block-yellow { background: var(--yellow); color: var(--ink); }
 
@@ -318,10 +318,10 @@ b, strong { font-weight: 800; }
   color: var(--ink-2);
 }
 
-.stat-flags.has-issues { background: var(--red); color: #fff; }
+.stat-flags.has-issues { background: var(--red); color: var(--ink); }
 .stat-flags.has-issues::before { background: var(--ink); }
 .stat-flags.has-issues .stat-num,
-.stat-flags.has-issues .stat-sub { color: #fff; }
+.stat-flags.has-issues .stat-sub { color: var(--ink); }
 
 /* ───────────────────────────────────────────────────────────── toolbar */
 
@@ -379,7 +379,7 @@ b, strong { font-weight: 800; }
 
 .btn:hover { background: var(--yellow); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
 .btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
-.btn-danger:hover { background: var(--red); color: #fff; }
+.btn-danger:hover { background: var(--red); color: var(--ink); }
 
 /* ──────────────────────────────────────────────────────────── sections */
 
@@ -521,6 +521,16 @@ b, strong { font-weight: 800; }
   align-content: start;
 }
 
+.slots:empty::after {
+  content: "Drop a course here";
+  align-self: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
 .slots.drag-over, .bank.drag-over {
   background: #eef0ff;
   box-shadow: inset 0 0 0 var(--rule) var(--blue);
@@ -553,7 +563,7 @@ b, strong { font-weight: 800; }
 .card.dragging { opacity: .35; }
 .card.is-pinned { cursor: pointer; }
 
-.card[data-cat="mee-core"]    { --fill: var(--red);    --on: #ffffff; }
+.card[data-cat="mee-core"]    { --fill: var(--red);    --on: var(--ink); }
 .card[data-cat="math-sci"]    { --fill: var(--yellow); --on: var(--ink); }
 .card[data-cat="engr-common"] { --fill: var(--blue);   --on: #ffffff; }
 .card[data-cat="las"]         { --fill: var(--green);  --on: var(--ink); }
@@ -569,11 +579,12 @@ b, strong { font-weight: 800; }
 /* only keep the corner clear when a grade badge actually sits there */
 .card.has-grade .card-code { padding-right: 34px; }
 
+/* No opacity here: it would drag the red card's 5.5:1 under the AA floor.
+   Size and weight carry the hierarchy instead. */
 .card-title {
   font-size: 11px;
   font-weight: 600;
   line-height: 1.2;
-  opacity: .88;
 }
 
 .card-foot {
@@ -637,7 +648,7 @@ b, strong { font-weight: 800; }
   pointer-events: none;
 }
 
-.card.is-failed .card-grade { background: var(--red); color: #fff; border-color: #fff; }
+.card.is-failed .card-grade { background: var(--ink); color: var(--red); border-color: var(--red); }
 .card.is-failed { box-shadow: 4px 4px 0 var(--red); }
 
 .card.is-withdrawn { filter: grayscale(1); opacity: .5; }
@@ -703,7 +714,7 @@ b, strong { font-weight: 800; }
 .issue-kind {
   padding: 3px 6px;
   background: var(--red);
-  color: #fff;
+  color: var(--ink);
   border: var(--rule-sm) solid var(--ink);
   font-family: var(--mono);
   font-size: 9px;
@@ -803,7 +814,7 @@ b, strong { font-weight: 800; }
 .legend-list.plain b { font-family: var(--mono); font-size: 15px; }
 
 .legend-list .mark { flex: none; border-color: var(--ink); }
-.legend-list .mark-h { background: var(--red); color: #fff; border-color: var(--ink); }
+.legend-list .mark-h { background: var(--red); color: var(--ink); border-color: var(--ink); }
 .legend-list .mark-x { background: var(--ink); color: #fff; }
 
 .swatch {
@@ -827,7 +838,7 @@ b, strong { font-weight: 800; }
 .footer-shout {
   padding: 26px 22px;
   background: var(--red);
-  color: #fff;
+  color: var(--ink);
   font-size: 40px;
   font-weight: 900;
   line-height: 0.86;
@@ -888,7 +899,7 @@ b, strong { font-weight: 800; }
   cursor: pointer;
 }
 
-.sheet-close:hover { background: var(--red); color: #fff; }
+.sheet-close:hover { background: var(--red); color: var(--ink); }
 
 .sheet h3 {
   padding-right: 56px;
@@ -910,7 +921,7 @@ b, strong { font-weight: 800; }
   text-transform: uppercase;
 }
 
-.cat-tag[data-cat="mee-core"]    { background: var(--red);    color: #fff; }
+.cat-tag[data-cat="mee-core"]    { background: var(--red);    color: var(--ink); }
 .cat-tag[data-cat="math-sci"]    { background: var(--yellow); color: var(--ink); }
 .cat-tag[data-cat="engr-common"] { background: var(--blue);   color: #fff; }
 .cat-tag[data-cat="las"]         { background: var(--green);  color: var(--ink); }
@@ -969,7 +980,7 @@ b, strong { font-weight: 800; }
 
 .grade-btn:hover { background: var(--yellow); }
 .grade-btn.is-on { background: var(--ink); color: var(--paper); box-shadow: 3px 3px 0 var(--blue); }
-.grade-btn.is-on.is-bad { background: var(--red); color: #fff; box-shadow: 3px 3px 0 var(--ink); }
+.grade-btn.is-on.is-bad { background: var(--red); color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
 
 .sheet-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 .sheet-row .btn { flex: 1 1 auto; justify-content: center; }
@@ -990,7 +1001,7 @@ b, strong { font-weight: 800; }
   margin-top: 10px;
   padding: 11px 13px;
   background: var(--red);
-  color: #fff;
+  color: var(--ink);
   border: var(--rule-sm) solid var(--ink);
   font-size: 12.5px;
   font-weight: 600;
